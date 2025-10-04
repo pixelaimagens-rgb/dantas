@@ -32,259 +32,683 @@
 
     const style = document.createElement("style");
     style.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Exo+2:wght@300;400;600&display=swap');
         :root {
-            --khz-bg: rgba(26, 27, 38, 0.85);
-            --khz-surface: rgba(40, 42, 58, 0.9);
-            --khz-border: rgba(73, 20, 220, 0.2);
-            --khz-primary: #45008bff;
-            --khz-primary-hover: #5500ffff;
-            --khz-text: #e0e0e0;
-            --khz-text-muted: #9e9e9e;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        @keyframes splash-glow {
-            0%, 100% { text-shadow: 0 0 10px var(--khz-primary), 0 0 20px var(--khz-primary); }
-            50% { text-shadow: 0 0 20px var(--khz-primary-hover), 0 0 40px var(--khz-primary-hover); }
-        }
-        @keyframes hueShift { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
-        .khz-splash { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: #111118; display: flex; justify-content: center; align-items: center; 
-            z-index: 999999; color: var(--khz-primary); font-size: 52px; font-family: 'Poppins', sans-serif; 
-            font-weight: 600; transition: opacity 1s ease; animation: splash-glow 3s infinite ease-in-out;
-        }
-        .khz-splash.fadeout { animation: fadeOut 1s ease forwards; }
-        .khz-toggle {
-            position: fixed; bottom: 20px; left: 20px; width: 48px; height: 48px;
-            background: var(--khz-surface); border: 1px solid var(--khz-border); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            z-index: 100000; color: var(--khz-text); font-size: 24px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease; backdrop-filter: blur(10px);
-        }
-        .khz-toggle:hover { background: var(--khz-primary); color: #111; transform: scale(1.1) rotate(15deg); }
-        .khz-panel {
-            position: fixed; top: 80px; left: 80px; width: 340px;
-            background: var(--khz-bg); border-radius: 18px;
-            border: 1px solid var(--khz-border); padding: 0;
-            z-index: 99999; color: var(--khz-text); font-family: 'Poppins', sans-serif;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
-            cursor: grab; display: none; animation: fadeIn 0.4s ease; overflow: hidden;
-        }
-        .khz-header {
-            padding: 20px 24px; background: rgba(0,0,0,0.15);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .khz-title { font-weight: 600; font-size: 22px; color: #fff; }
-        .khz-version { font-size: 12px; font-weight: 500; color: var(--khz-text-muted); padding: 4px 8px; background: rgba(0,0,0,0.2); border-radius: 8px;}
-        .khz-tabs { display: flex; padding: 12px 24px 0 24px; border-bottom: 1px solid var(--khz-border); }
-        .khz-tab {
-            padding: 8px 16px; cursor: pointer; color: var(--khz-text-muted);
-            font-weight: 500; font-size: 14px; border-bottom: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-        .khz-tab:hover { color: var(--khz-primary-hover); }
-        .khz-tab.active { color: var(--khz-primary); border-bottom-color: var(--khz-primary); }
-        .khz-tab-content { padding: 20px 24px; display: none; animation: fadeIn 0.3s; }
-        .khz-tab-content.active { display: block; }
-        .khz-button {
-            display: flex; align-items: center; gap: 12px; width: 100%;
-            margin: 8px 0; padding: 12px; background: var(--khz-surface);
-            color: var(--khz-text); border: 1px solid var(--khz-border);
-            border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 500;
-            transition: all 0.2s ease-in-out; text-align: left;
-        }
-        .khz-button:hover { border-color: var(--khz-primary); background: rgba(139, 0, 0, 0.1); }
-        .khz-button.active {
-            background: var(--khz-primary); color: #1A1B26; border-color: var(--khz-primary);
-            font-weight: 600;
-        }
-        .khz-button.active .khz-icon { stroke: #1A1B26; }
-        .khz-icon { width: 20px; height: 20px; stroke: var(--khz-text-muted); transition: all 0.2s; flex-shrink: 0; }
-        .khz-button:hover .khz-icon { stroke: var(--khz-primary-hover); }
-        .khz-input-group { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--khz-border); }
-        .khz-input-group label {
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 14px; color: var(--khz-text); margin-bottom: 10px; font-weight: 500;
-        }
-        #khz-speed-value { font-weight: 600; color: var(--khz-primary); }
-        input[type="range"] {
-            -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
-            background: var(--khz-surface); border-radius: 3px; outline: none;
-            border: 1px solid var(--khz-border);
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
-            background: var(--khz-primary); border-radius: 50%; cursor: pointer;
-            transition: background 0.2s;
-        }
-        input[type="range"]::-webkit-slider-thumb:hover { background: var(--khz-primary-hover); }
-        .khz-footer {
-            display: flex; justify-content: space-between; align-items: center; padding: 12px 24px;
-            background: rgba(0,0,0,0.15); border-top: 1px solid var(--khz-border);
-            font-size: 12px; color: var(--khz-text-muted);
-        }
-        .khz-footer a { color: var(--khz-primary); text-decoration: none; transition: color 0.3s; font-weight: 500; }
-        .khz-footer a:hover { color: var(--khz-primary-hover); }
-        .khz-toast {
-            position: fixed; bottom: 20px; right: 20px; background: var(--khz-surface);
-            color: var(--khz-text); border-radius: 12px; padding: 16px 22px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
-            font-size: 14px; font-family: 'Poppins', sans-serif; z-index: 999999;
-            transition: all 0.3s ease; border: 1px solid var(--khz-border);
-            animation: fadeIn 0.3s ease;
+            --khz-bg: radial-gradient(circle at 30% 30%, #0a0e17 0%, #050710 100%);
+            --khz-surface: rgba(15, 20, 35, 0.85);
+            --khz-border: rgba(100, 150, 255, 0.15);
+            --khz-primary: #6c5ce7;
+            --khz-primary-hover: #a29bfe;
+            --khz-accent: #00cec9;
+            --khz-text: #f5f6fa;
+            --khz-text-muted: #a2a9bb;
+            --khz-stars: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 3c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm54-63c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm-3 50c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-52 2c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm24 12c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%236c5ce7' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
         }
         
-        /* Novos estilos para o menu atualizado */
-        .khz-section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--khz-primary);
-            margin: 20px 0 10px 0;
-            padding-bottom: 6px;
-            border-bottom: 1px solid var(--khz-border);
-            letter-spacing: 0.5px;
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes orbit { 0% { transform: rotate(0deg) translateX(15px) rotate(0deg); } 100% { transform: rotate(360deg) translateX(15px) rotate(-360deg); } }
+        @keyframes stars { 0% { background-position: 0 0; } 100% { background-position: 10px 10px; } }
+        @keyframes hueShift { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        
+        .khz-splash { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: linear-gradient(135deg, #0a0e17 0%, #050710 100%);
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 999999; color: #6c5ce7; font-size: 52px; font-family: 'Orbitron', sans-serif; 
+            font-weight: 700; transition: opacity 1s ease;
+            text-shadow: 0 0 20px rgba(108, 92, 231, 0.7);
+            letter-spacing: 3px;
+            overflow: hidden;
         }
-
-        .khz-about-content {
-            padding: 16px 0;
+        
+        .khz-splash::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: var(--khz-stars);
+            opacity: 0.5;
+            z-index: -1;
+            animation: stars 20s linear infinite;
         }
-
-        .khz-about-content h3 {
-            font-size: 22px;
-            margin-bottom: 16px;
-            color: #fff;
-            font-weight: 600;
+        
+        .khz-splash::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(#fff, #6c5ce7, transparent);
+            box-shadow: 0 0 60px 20px rgba(108, 92, 231, 0.5);
+            animation: pulse 3s infinite;
+            z-index: -1;
         }
-
-        .khz-about-content p {
-            color: var(--khz-text-muted);
-            line-height: 1.6;
-            font-size: 14px;
-            margin-bottom: 24px;
+        
+        .khz-splash.fadeout { 
+            animation: fadeOut 1s ease forwards; 
+            opacity: 0 !important;
         }
-
-        .khz-features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 16px;
-            margin: 20px 0;
+        
+        .khz-toggle {
+            position: fixed; bottom: 20px; left: 20px; width: 60px; height: 60px;
+            background: var(--khz-surface); border: 1px solid var(--khz-border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            z-index: 100000; color: var(--khz-primary); font-size: 32px;
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.4s ease; backdrop-filter: blur(5px);
+            overflow: hidden;
         }
-
-        .khz-feature-card {
-            background: var(--khz-surface);
+        
+        .khz-toggle::before {
+            content: "";
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            background: var(--khz-stars);
+            opacity: 0.2;
+            z-index: -1;
+        }
+        
+        .khz-toggle:hover { 
+            transform: scale(1.15) rotate(10deg); 
+            box-shadow: 0 0 30px rgba(108, 92, 231, 0.5);
+            background: rgba(20, 25, 45, 0.95);
+        }
+        
+        .khz-panel {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 380px; height: 520px;
+            background: var(--khz-bg);
+            border-radius: 24px;
             border: 1px solid var(--khz-border);
-            border-radius: 12px;
-            padding: 14px;
-            transition: all 0.3s ease;
+            padding: 0;
+            z-index: 99999; color: var(--khz-text); 
+            font-family: 'Exo 2', sans-serif;
+            box-shadow: 0 0 40px rgba(108, 92, 231, 0.25);
+            backdrop-filter: blur(10px);
+            display: none; animation: fadeIn 0.5s ease;
+            overflow: hidden;
+            transition: all 0.4s ease;
         }
-
-        .khz-feature-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--khz-primary);
-            box-shadow: 0 5px 15px rgba(69, 0, 140, 0.2);
+        
+        .khz-panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: var(--khz-stars);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
         }
-
-        .khz-feature-icon {
-            font-size: 28px;
-            margin-bottom: 10px;
+        
+        .khz-header {
+            padding: 25px 30px 15px 30px; 
+            position: relative;
+            z-index: 1;
         }
-
-        .khz-feature-card h4 {
-            font-size: 15px;
-            margin: 8px 0;
+        
+        .khz-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700; 
+            font-size: 28px; 
             color: #fff;
-            font-weight: 500;
-        }
-
-        .khz-feature-card p {
-            font-size: 12px;
-            margin: 0;
-            color: var(--khz-text-muted);
-        }
-
-        .khz-social-links {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin: 24px 0;
-        }
-
-        .khz-social-btn {
+            text-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 18px;
-            background: var(--khz-surface);
-            border: 1px solid var(--khz-border);
-            border-radius: 14px;
-            color: var(--khz-text);
-            text-decoration: none;
-            transition: all 0.25s ease;
-            font-weight: 500;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
-
-        .khz-social-btn:hover {
-            background: var(--khz-primary);
-            color: #1A1B26;
-            border-color: var(--khz-primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(69, 0, 140, 0.25);
+        
+        .khz-title::after {
+            content: "";
+            position: absolute;
+            bottom: 15px;
+            left: 30px;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--khz-primary), transparent);
+            border-radius: 3px;
         }
-
-        .khz-social-btn .khz-icon {
-            width: 22px;
-            height: 22px;
-        }
-
-        .khz-credits {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 14px;
-            color: var(--khz-text-muted);
-            padding-top: 16px;
-            border-top: 1px solid var(--khz-border);
-        }
-
-        .khz-credits a {
-            color: var(--khz-primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .khz-credits a:hover {
-            color: var(--khz-primary-hover);
-        }
-
-        .khz-credits-small {
-            font-size: 12px;
-            margin-top: 6px;
-            color: var(--khz-text-muted);
-            font-weight: 400;
-        }
-
-        .khz-footer-left {
+        
+        .khz-title-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--khz-primary), #00cec9);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            font-weight: bold;
+            animation: pulse 3s infinite;
         }
-
-        .khz-version-tag {
-            background: rgba(69, 0, 140, 0.2);
+        
+        .khz-tabs {
+            display: flex; 
+            padding: 0 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .khz-tab {
+            padding: 12px 0; 
+            cursor: pointer; 
+            color: var(--khz-text-muted);
+            font-weight: 500; 
+            font-size: 16px;
+            width: 33.33%;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .khz-tab:hover {
+            color: var(--khz-primary-hover);
+        }
+        
+        .khz-tab.active {
             color: var(--khz-primary);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
             font-weight: 600;
         }
         
+        .khz-tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--khz-primary);
+            border-radius: 3px;
+            animation: fadeIn 0.3s;
+        }
+        
+        .khz-tab-content {
+            padding: 20px 30px; 
+            display: none; 
+            animation: fadeIn 0.3s; 
+            height: calc(100% - 140px);
+            overflow-y: auto;
+        }
+        
+        .khz-tab-content.active {
+            display: block;
+        }
+        
+        /* Custom scrollbar for the tab content */
+        .khz-tab-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .khz-tab-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+        
+        .khz-tab-content::-webkit-scrollbar-thumb {
+            background: var(--khz-primary);
+            border-radius: 3px;
+        }
+        
+        .khz-button {
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            width: 100%;
+            margin: 12px 0;
+            padding: 14px 20px;
+            background: var(--khz-surface);
+            color: var(--khz-text); 
+            border: 1px solid var(--khz-border);
+            border-radius: 16px; 
+            cursor: pointer; 
+            font-size: 15px; 
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .khz-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transform: translateX(-100%);
+            z-index: -1;
+        }
+        
+        .khz-button:hover::before {
+            animation: shine 1.5s;
+        }
+        
+        @keyframes shine {
+            100% { transform: translateX(100%); }
+        }
+        
+        .khz-button:hover {
+            border-color: var(--khz-primary);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.15);
+        }
+        
+        .khz-button.active {
+            background: rgba(108, 92, 231, 0.25);
+            border-color: var(--khz-primary);
+            color: var(--khz-primary-hover);
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.3);
+        }
+        
+        .khz-button.active::after {
+            content: "ATIVADO";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(108, 92, 231, 0.3);
+            color: var(--khz-primary-hover);
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        
+        .khz-icon {
+            width: 24px; 
+            height: 24px; 
+            min-width: 24px;
+            background: var(--khz-surface);
+            border: 1px solid var(--khz-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .khz-button:hover .khz-icon {
+            background: var(--khz-primary);
+            border-color: var(--khz-primary);
+            transform: scale(1.1);
+        }
+        
+        .khz-button.active .khz-icon {
+            background: var(--khz-primary);
+            border-color: var(--khz-primary);
+            color: white;
+        }
+        
+        .khz-input-group { 
+            margin-top: 25px; 
+            padding-top: 20px; 
+            border-top: 1px solid var(--khz-border); 
+        }
+        
+        .khz-input-group label {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            font-size: 15px; 
+            color: var(--khz-text); 
+            margin-bottom: 14px; 
+            font-weight: 500;
+        }
+        
+        #khz-speed-value { 
+            font-weight: 600; 
+            color: var(--khz-primary); 
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none; 
+            appearance: none; 
+            width: 100%; 
+            height: 8px;
+            background: var(--khz-surface); 
+            border-radius: 4px; 
+            outline: none;
+            border: 1px solid var(--khz-border);
+            position: relative;
+        }
+        
+        input[type="range"]::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%;
+            background: var(--khz-primary);
+            border-radius: 4px;
+            z-index: 1;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; 
+            appearance: none; 
+            width: 22px; 
+            height: 22px;
+            background: var(--khz-primary); 
+            border-radius: 50%; 
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+            border: 3px solid #0f1423;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover { 
+            background: var(--khz-accent); 
+            transform: scale(1.15);
+        }
+        
+        .khz-footer {
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 30px 20px 30px;
+            background: rgba(5, 7, 16, 0.7);
+            border-top: 1px solid var(--khz-border);
+            font-size: 13px; 
+            color: var(--khz-text-muted);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .khz-footer a { 
+            color: var(--khz-primary); 
+            text-decoration: none; 
+            transition: color 0.3s; 
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .khz-footer a:hover { 
+            color: var(--khz-primary-hover); 
+        }
+        
+        .khz-footer .khz-fps {
+            margin-top: 8px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        /* Nova seção Sobre com tema espacial */
+        .khz-about-content {
+            text-align: center;
+            padding: 10px 0 5px 0;
+        }
+        
+        .khz-about-header {
+            margin-bottom: 25px;
+        }
+        
+        .khz-about-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: var(--khz-primary);
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(108, 92, 231, 0.3);
+        }
+        
+        .khz-about-subtitle {
+            color: var(--khz-text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .khz-lunar-system {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+        
+        .khz-sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(#ffcc00, #ff9900);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #ffcc00;
+            z-index: 3;
+        }
+        
+        .khz-earth-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .khz-earth {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(#1e90ff, #0066cc);
+            border-radius: 50%;
+            animation: orbit 20s linear infinite;
+            z-index: 2;
+        }
+        
+        .khz-moon-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+        
+        .khz-moon {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(#c0c0c0, #808080);
+            border-radius: 50%;
+            animation: orbit 5s linear infinite;
+            z-index: 1;
+        }
+        
+        .khz-about-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .khz-feature-item {
+            background: var(--khz-surface);
+            border: 1px solid var(--khz-border);
+            border-radius: 12px;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        
+        .khz-feature-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--khz-primary);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.1);
+        }
+        
+        .khz-feature-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--khz-primary);
+        }
+        
+        .khz-feature-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px 0;
+            color: var(--khz-text);
+        }
+        
+        .khz-feature-desc {
+            font-size: 12px;
+            color: var(--khz-text-muted);
+        }
+        
+        .khz-social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .khz-social-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--khz-surface);
+            border: 1px solid var(--khz-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--khz-text);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 20px;
+        }
+        
+        .khz-social-btn:hover {
+            background: var(--khz-primary);
+            border-color: var(--khz-primary);
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+        
+        .khz-credits {
+            font-size: 13px;
+            color: var(--khz-text-muted);
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        .khz-credits a {
+            color: var(--khz-primary);
+            text-decoration: none;
+        }
+        
+        .khz-credits a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Novo efeito de loading para o splash */
+        .khz-splash-loading {
+            position: absolute;
+            bottom: 30px;
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .khz-splash-loading::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 40%;
+            background: var(--khz-primary);
+            border-radius: 2px;
+            animation: loading 2s infinite;
+        }
+        
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Toast notification with space theme */
+        .khz-toast {
+            position: fixed; 
+            bottom: 30px; 
+            right: 30px; 
+            background: rgba(15, 20, 35, 0.95);
+            color: var(--khz-text); 
+            border-radius: 16px; 
+            padding: 18px 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(108, 92, 231, 0.3);
+            backdrop-filter: blur(10px);
+            font-size: 15px; 
+            font-family: 'Exo 2', sans-serif; 
+            z-index: 999999;
+            transition: all 0.3s ease; 
+            border: 1px solid var(--khz-border);
+            animation: fadeIn 0.3s ease;
+            border-left: 4px solid var(--khz-primary);
+        }
+        
+        .khz-toast-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         @media (max-width: 768px) {
-            .khz-panel { width: calc(100vw - 40px); max-width: 340px; left: 20px; top: 20px; transform: none; }
-            .khz-toast { width: calc(100vw - 40px); left: 20px; bottom: 20px; right: 20px; }
+            .khz-panel { 
+                width: calc(100vw - 40px); 
+                max-width: 380px; 
+                height: auto;
+                max-height: 90vh;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            
+            .khz-toggle {
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .khz-toast { 
+                width: calc(100vw - 40px); 
+                left: 20px; 
+                bottom: 20px; 
+                right: 20px;
+                border-radius: 14px;
+            }
         }
     `;
     document.head.appendChild(style);
@@ -303,8 +727,8 @@
                                 if (widget.options && widget.options.choices) {
                                     widget.options.choices.forEach(choice => {
                                         if (choice.correct) {
-                                            choice.content = "✅ " + choice.content;
-                                            sendToast("Resposta revelada!");
+                                            choice.content = "🚀 " + choice.content;
+                                            sendToast("Resposta revelada com sucesso!");
                                         }
                                     });
                                 }
@@ -328,17 +752,17 @@
                 let responseObj = await clonedResponse.json();
                 if (responseObj && responseObj.data && responseObj.data.assessmentItem && responseObj.data.assessmentItem.item && responseObj.data.assessmentItem.item.itemData) {
                     const phrases = [
-                        "Feito por [@bakai](  https://github.com/KilluaWq  )!",
-                        "Créditos para [@bakai](https://github.com/KilluaWq  ) :)",
-                        "Acesse o GitHub do [@bakai](https://github.com/KilluaWq  )!",
-                        "Entre no nosso Discord: [Eclipse](https://discord.gg/QAm62DDJ  )!",
-                        "Eclipse sempre em frente"
+                        "🚀 Missão: Eclipse Lunar ativada!",
+                        "🛰️ Sistema de auxílio acadêmico online",
+                        "🌌 Explorando novos horizontes do conhecimento",
+                        "🔭 Sistema ativado por [@bakai](https://github.com/KilluaWq)",
+                        "💫 Eclipse Lunar - Sempre à frente"
                     ];
                     let itemData = JSON.parse(responseObj.data.assessmentItem.item.itemData);
                     itemData.question.content = phrases[Math.floor(Math.random() * phrases.length)] + `\n\n[[☃ radio 1]]`;
-                    itemData.question.widgets = { "radio 1": { type: "radio", options: { choices: [{ content: "✅", correct: true }, { content: "❌ (não clica aqui animal)", correct: false }] } } };
+                    itemData.question.widgets = { "radio 1": { type: "radio", options: { choices: [{ content: "✅ Confirmar", correct: true }, { content: "❌ Cancelar", correct: false }] } } };
                     responseObj.data.assessmentItem.item.itemData = JSON.stringify(itemData);
-                    sendToast("Questão modificada!");
+                    sendToast("Questão modificada com sucesso!");
                     return new Response(JSON.stringify(responseObj), { status: 200, statusText: "OK", headers: originalResponse.headers });
                 }
             } catch (e) {}
@@ -353,7 +777,7 @@
         frameCount++;
         if (now - lastFrameTime >= 1000) {
             const fpsCounter = document.getElementById("khz-fps-counter");
-            if (fpsCounter) fpsCounter.textContent = `FPS: ${frameCount}`;
+            if (fpsCounter) fpsCounter.textContent = `🌌 ${frameCount} FPS`;
             frameCount = 0;
             lastFrameTime = now;
         }
@@ -376,7 +800,13 @@
 
     const splash = document.createElement("div");
     splash.className = "khz-splash";
-    splash.textContent = "Eclipse Lunar";
+    splash.innerHTML = `
+        <div style="text-align: center; position: relative; z-index: 2;">
+            <div style="font-size: 42px; margin-bottom: 10px;">ECLIPSE LUNAR</div>
+            <div style="font-size: 18px; color: var(--khz-text-muted); font-weight: 300; letter-spacing: 2px;">INICIANDO SISTEMA</div>
+            <div class="khz-splash-loading"></div>
+        </div>
+    `;
     document.body.appendChild(splash);
 
     (async function initializeUI() {
@@ -544,22 +974,48 @@
                 panel.className = "khz-panel";
                 panel.innerHTML = `
                     <div class="khz-header">
-                        <div class="khz-title">Eclipse Lunar</div>
-                        <div class="khz-version">v2.0</div>
+                        <div class="khz-title">
+                            <span class="khz-title-icon">E</span>
+                            Eclipse Lunar
+                        </div>
                     </div>
                     <div class="khz-tabs">
                         <div class="khz-tab active" data-tab="features">Recursos</div>
                         <div class="khz-tab" data-tab="appearance">Personalização</div>
-                        <div class="khz-tab" data-tab="about">Sobre</div>
+                        <div class="khz-tab" data-tab="about">Sistema</div>
                     </div>
                     <div id="khz-tab-features" class="khz-tab-content active">
-                        <div class="khz-section-title">Automação Inteligente</div>
-                        <button id="khz-btn-auto" class="khz-button"><svg class="khz-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><span>Resposta Automática</span></button>
+                        <button id="khz-btn-auto" class="khz-button">
+                            <div class="khz-icon">🚀</div>
+                            <div>
+                                <div>Resposta Automática</div>
+                                <div style="font-size: 12px; color: var(--khz-text-muted); margin-top: 3px;">Respostas automáticas inteligentes</div>
+                            </div>
+                        </button>
                         
-                        <div class="khz-section-title">Segurança Acadêmica</div>
-                        <button id="khz-btn-reveal" class="khz-button"><svg class="khz-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg><span>Revelar Respostas</span></button>
-                        <button id="khz-btn-question" class="khz-button"><svg class="khz-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Modificar Questões</span></button>
-                        <button id="khz-btn-video" class="khz-button"><svg class="khz-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg><span>Modificar Vídeos</span></button>
+                        <button id="khz-btn-reveal" class="khz-button">
+                            <div class="khz-icon">🔍</div>
+                            <div>
+                                <div>Revelar Respostas</div>
+                                <div style="font-size: 12px; color: var(--khz-text-muted); margin-top: 3px;">Mostrar respostas corretas</div>
+                            </div>
+                        </button>
+                        
+                        <button id="khz-btn-question" class="khz-button">
+                            <div class="khz-icon">❓</div>
+                            <div>
+                                <div>Modificar Questões</div>
+                                <div style="font-size: 12px; color: var(--khz-text-muted); margin-top: 3px;">Personalizar conteúdo das questões</div>
+                            </div>
+                        </button>
+                        
+                        <button id="khz-btn-video" class="khz-button">
+                            <div class="khz-icon">🎥</div>
+                            <div>
+                                <div>Modificar Vídeos</div>
+                                <div style="font-size: 12px; color: var(--khz-text-muted); margin-top: 3px;">Alterar conteúdo dos vídeos</div>
+                            </div>
+                        </button>
                         
                         <div class="khz-input-group">
                             <label for="khz-input-speed">Velocidade de Resposta <span id="khz-speed-value">${config.autoAnswerDelay.toFixed(1)}s</span></label>
@@ -567,59 +1023,84 @@
                         </div>
                     </div>
                     <div id="khz-tab-appearance" class="khz-tab-content">
-                        <div class="khz-section-title">Tema Visual</div>
-                        <button id="khz-btn-dark" class="khz-button active"><svg class="khz-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg><span>Modo Escuro</span></button>
+                        <button id="khz-btn-dark" class="khz-button active">
+                            <div class="khz-icon">🌓</div>
+                            <div>
+                                <div>Modo Escuro Espacial</div>
+                                <div style="font-size: 12px; color: var(--khz-text-muted); margin-top: 3px;">Tema noturno com estrelas</div>
+                            </div>
+                        </button>
                         
-                        <div class="khz-section-title">Personalização Avançada</div>
-                        <button id="khz-btn-rgb" class="khz-button"><svg class="khz-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg><span>Logo RGB Dinâmico</span></button>
-                        <button id="khz-btn-oneko" class="khz-button"><svg class="khz-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6.13a15.42,15.42,0,0,1,2.91-9.5,1,1,0,0,1,1.82.94,13.49,13.49,0,00-1.6,9.41,1,1,0,0,1-.6,1,1,1,0,0,1-1.12-.39,12.54,12.54,0,0,1-1.41-5.55,1,1,0,0,1,1-1.11,1,1,0,0,1,1.12-.39,12.63,12.63,0,0,1,5.55,1.41,1,1,0,0,1,.39,1.12,1,1,0,0,1-1,.6,13.49,13.49,0,00-9.41,1.6,1,1,0,0,1-.94-1.82,15.42,15.42,0,0,1,9.5-2.91V15a1,1,0,0,1,2,0,13,13,0,0,0,0,2,1,1,0,0,1-2,0Z"/></svg><span>Oneko Gatinho</span></button>
+                        <button id="khz-btn-rgb" class="khz-button">
+                            <div class="khz-icon">🌈</div>
+                            <div>
+                                <div>Logo RGB Dinâmico</div>
+                                <div style="font-size: 12px; color: var(--khz-text-muted); margin-top: 3px;">Efeito arco-íris no logo</div>
+                            </div>
+                        </button>
+                        
+                        <button id="khz-btn-oneko" class="khz-button">
+                            <div class="khz-icon">🐱</div>
+                            <div>
+                                <div>Oneko Gatinho Espacial</div>
+                                <div style="font-size: 12px; color: var(--khz-text-muted); margin-top: 3px;">Gato cósmico de acompanhamento</div>
+                            </div>
+                        </button>
                     </div>
                     <div id="khz-tab-about" class="khz-tab-content">
                         <div class="khz-about-content">
-                            <h3>Eclipse Lunar v2.0</h3>
-                            <p>Sistema avançado de automação e personalização para Khan Academy, projetado para melhorar sua experiência de aprendizado.</p>
+                            <div class="khz-about-header">
+                                <div class="khz-about-title">ECLIPSE LUNAR v2.1</div>
+                                <div class="khz-about-subtitle">Sistema de auxílio acadêmico de última geração, projetado para explorar novos horizontes do conhecimento.</div>
+                            </div>
                             
-                            <div class="khz-features-grid">
-                                <div class="khz-feature-card">
-                                    <div class="khz-feature-icon">⚡</div>
-                                    <h4>Automação Inteligente</h4>
-                                    <p>Respostas automáticas com controle de velocidade ajustável</p>
+                            <div class="khz-lunar-system">
+                                <div class="khz-sun"></div>
+                                <div class="khz-earth-orbit"></div>
+                                <div class="khz-earth"></div>
+                                <div class="khz-moon-orbit"></div>
+                                <div class="khz-moon"></div>
+                            </div>
+                            
+                            <div class="khz-about-features">
+                                <div class="khz-feature-item">
+                                    <div class="khz-feature-icon">🚀</div>
+                                    <div class="khz-feature-title">Automação Inteligente</div>
+                                    <div class="khz-feature-desc">Respostas rápidas e precisas com controle total</div>
                                 </div>
-                                <div class="khz-feature-card">
-                                    <div class="khz-feature-icon">🔍</div>
-                                    <h4>Segurança Acadêmica</h4>
-                                    <p>Revelação de respostas e modificação de conteúdo</p>
+                                <div class="khz-feature-item">
+                                    <div class="khz-feature-icon">🔭</div>
+                                    <div class="khz-feature-title">Segurança Acadêmica</div>
+                                    <div class="khz-feature-desc">Revelação discreta de respostas</div>
                                 </div>
-                                <div class="khz-feature-card">
-                                    <div class="khz-feature-icon">🎨</div>
-                                    <h4>Personalização Completa</h4>
-                                    <p>Modo escuro, efeitos visuais e animações exclusivas</p>
+                                <div class="khz-feature-item">
+                                    <div class="khz-feature-icon">🌌</div>
+                                    <div class="khz-feature-title">Interface Cósmica</div>
+                                    <div class="khz-feature-desc">Design imersivo com tema espacial</div>
+                                </div>
+                                <div class="khz-feature-item">
+                                    <div class="khz-feature-icon">🛸</div>
+                                    <div class="khz-feature-title">Modo Furtivo</div>
+                                    <div class="khz-feature-desc">Funciona sem deixar rastros</div>
                                 </div>
                             </div>
                             
                             <div class="khz-social-links">
-                                <a href="https://discord.gg/QAm62DDJ" target="_blank" class="khz-social-btn">
-                                    <svg class="khz-icon" viewBox="0 0 24 24"><path d="M20.317 4.36994C18.717 3.61994 17.047 3.07994 15.317 2.77994C15.057 3.25994 14.707 3.93994 14.477 4.39994C12.677 3.98994 10.847 3.98994 9.04703 4.39994C8.81703 3.93994 8.46703 3.25994 8.21703 2.77994C6.47703 3.07994 4.81703 3.61994 3.21703 4.36994C0.247028 9.32994 1.07703 14.73 3.72703 19.45L5.12703 18.44C3.75703 17.46 2.63703 16.17 1.84703 14.68C3.49703 15.65 5.24703 16.27 7.04703 16.52C7.30703 16.08 7.60703 15.57 7.87703 15.08C6.12703 14.18 4.66703 12.79 3.63703 11.1C3.89703 11.04 4.15703 10.96 4.40703 10.87C8.03703 12.6 11.997 12.6 15.597 10.87C15.847 10.96 16.107 11.04 16.367 11.1C15.337 12.79 13.877 14.18 12.127 15.08C12.397 15.57 12.697 16.08 12.957 16.52C14.757 16.27 16.507 15.65 18.157 14.68C17.367 16.17 16.247 17.46 14.877 18.44L16.277 19.45C18.927 14.73 19.757 9.32994 20.317 4.36994ZM8.57703 13.25C7.35703 13.25 6.37703 12.03 6.37703 10.51C6.37703 8.99994 7.35703 7.77994 8.57703 7.77994C9.79703 7.77994 10.777 8.99994 10.777 10.51C10.777 12.03 9.79703 13.25 8.57703 13.25ZM15.417 13.25C14.197 13.25 13.217 12.03 13.217 10.51C13.217 8.99994 14.197 7.77994 15.417 7.77994C16.637 7.77994 17.617 8.99994 17.617 10.51C17.617 12.03 16.637 13.25 15.417 13.25Z" fill="currentColor"/></svg>
-                                    <span>Comunidade Discord</span>
-                                </a>
-                                <a href="https://github.com/KilluaWq" target="_blank" class="khz-social-btn">
-                                    <svg class="khz-icon" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="currentColor"/></svg>
-                                    <span>Repositório GitHub</span>
-                                </a>
+                                <a href="https://discord.gg/QAm62DDJ" target="_blank" class="khz-social-btn">💬</a>
+                                <a href="https://github.com/KilluaWq" target="_blank" class="khz-social-btn">🐙</a>
                             </div>
                             
                             <div class="khz-credits">
-                                <p>Desenvolvido com ❤ por <a href="https://github.com/KilluaWq" target="_blank">@bakai</a></p>
-                                <p class="khz-credits-small">Eclipse Lunar - Sempre à frente da curva</p>
+                                Desenvolvido com ❤ por <a href="https://github.com/KilluaWq" target="_blank">@bakai</a><br>
+                                Eclipse Lunar v2.1 • Sistema de auxílio acadêmico
                             </div>
                         </div>
                     </div>
                     <div class="khz-footer">
-                        <div class="khz-footer-left">
-                            <a href="https://discord.gg/QAm62DDJ" target="_blank">Eclipse Lunar</a>
-                            <span class="khz-version-tag">v2.0</span>
-                        </div>
-                        <span id="khz-fps-counter">FPS: ...</span>
+                        <a href="https://discord.gg/QAm62DDJ" target="_blank">
+                            <span>🌌 Comunidade Eclipse Lunar</span>
+                        </a>
+                        <div class="khz-fps" id="khz-fps-counter">🌌 ... FPS</div>
                     </div>
                 `;
                 document.body.appendChild(panel);
@@ -674,7 +1155,7 @@
                     if (isActive) {
                         if (!document.getElementById("oneko")) {
                             oneko();
-                            sendToast("🐱 Gatinho ativado!");
+                            sendToast("🐱 Gatinho cósmico ativado!");
                         }
                     } else {
                         const onekoEl = document.getElementById("oneko");
@@ -685,36 +1166,19 @@
                     }
                 }
                 
-                let dragging = false, offsetX = 0, offsetY = 0;
-                const startDrag = (e) => {
-                    if (e.target.closest("button") || e.target.closest("input") || e.target.closest("a") || e.target.closest(".khz-tab")) return;
-                    dragging = true;
-                    const touch = e.touches ? e.touches[0] : null;
-                    const clientX = touch ? touch.clientX : e.clientX;
-                    const clientY = touch ? touch.clientY : e.clientY;
-                    offsetX = clientX - panel.offsetLeft;
-                    offsetY = clientY - panel.offsetTop;
-                    panel.style.cursor = "grabbing";
-                };
-                const onDrag = (e) => {
-                    if (dragging) {
-                        e.preventDefault();
-                        const touch = e.touches ? e.touches[0] : null;
-                        const clientX = touch ? touch.clientX : e.clientX;
-                        const clientY = touch ? touch.clientY : e.clientY;
-                        panel.style.left = `${clientX - offsetX}px`;
-                        panel.style.top = `${clientY - offsetY}px`;
-                    }
-                };
-                const endDrag = () => { dragging = false; panel.style.cursor = "grab"; };
-
-                panel.addEventListener("mousedown", startDrag);
-                document.addEventListener("mousemove", onDrag);
-                document.addEventListener("mouseup", endDrag);
-                panel.addEventListener("touchstart", startDrag, { passive: false });
-                document.addEventListener("touchmove", onDrag, { passive: false });
-                document.addEventListener("touchend", endDrag);
-            }, 1000);
-        }, 2000);
+                // Adiciona um pequeno efeito de estrelas no fundo do painel
+                const starsBg = document.createElement('div');
+                starsBg.style.position = 'fixed';
+                starsBg.style.top = '0';
+                starsBg.style.left = '0';
+                starsBg.style.width = '100%';
+                starsBg.style.height = '100%';
+                starsBg.style.backgroundImage = 'radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px)';
+                starsBg.style.backgroundSize = '550px 550px';
+                starsBg.style.zIndex = '-1';
+                starsBg.style.opacity = '0.3';
+                panel.appendChild(starsBg);
+            }, 2500);
+        }, 3000);
     })();
 })();
