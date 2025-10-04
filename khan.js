@@ -49,6 +49,148 @@
             --eclipse-error: #ff6b6b;
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(114, 87, 255, 0.4); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(114, 87, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(114, 87, 255, 0); }
+        }
+        
+        @keyframes orbit {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .eclipse-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f121c, #1a1b26);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.5s;
+            overflow: hidden;
+        }
+        
+        .eclipse-splash::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(114, 87, 255, 0.1), transparent 30%),
+                        radial-gradient(circle at 80% 70%, rgba(67, 217, 173, 0.05), transparent 30%);
+            z-index: 0;
+        }
+        
+        .eclipse-splash::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 20px 20px, #5a5a7a 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .eclipse-splash-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        
+        .eclipse-splash-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #7257ff, #43d9ad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        .eclipse-splash-subtitle {
+            font-size: 18px;
+            color: var(--eclipse-text-muted);
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+        
+        .eclipse-splash-loader {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+        
+        .eclipse-splash-loader-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid transparent;
+            border-top-color: var(--eclipse-primary);
+            border-radius: 50%;
+            animation: orbit 1.5s linear infinite;
+        }
+        
+        .eclipse-splash-loader-ring:nth-child(2) {
+            border-top-color: var(--eclipse-accent);
+            animation-duration: 2.5s;
+            transform: rotate(60deg);
+        }
+        
+        .eclipse-splash-loader-ring:nth-child(3) {
+            border-top-color: rgba(114, 87, 255, 0.5);
+            animation-duration: 3.5s;
+            transform: rotate(120deg);
+        }
+        
+        .eclipse-splash-status {
+            margin-top: 25px;
+            font-size: 14px;
+            color: var(--eclipse-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .eclipse-splash-status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--eclipse-primary);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .eclipse-splash.fadeout {
+            animation: fadeOut 0.5s forwards;
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; pointer-events: none; }
+        }
+        
         .eclipse-toast {
             position: fixed;
             bottom: 24px;
@@ -113,6 +255,7 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
+            z-index: 99999;
         }
         
         .eclipse-toggle:hover {
@@ -126,10 +269,10 @@
         
         .eclipse-panel {
             position: fixed;
-            bottom: 90px;
-            right: 24px;
+            top: 120px;
+            right: 40px;
             width: 360px;
-            max-height: 85vh;
+            max-height: 75vh;
             background: var(--eclipse-bg);
             border-radius: 16px;
             border: 1px solid var(--eclipse-border);
@@ -142,6 +285,7 @@
             transform: translateY(10px);
             opacity: 0;
             transition: all 0.3s ease;
+            cursor: default;
         }
         
         .eclipse-panel.active {
@@ -154,6 +298,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: move;
         }
         
         .eclipse-title {
@@ -165,6 +310,13 @@
             background-clip: text;
             text-fill-color: transparent;
             letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .eclipse-title-icon {
+            font-size: 22px;
         }
         
         .eclipse-version {
@@ -229,11 +381,6 @@
         .eclipse-tab-content.active {
             display: block;
             animation: fadeIn 0.2s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
         
         /* Custom scrollbar */
@@ -358,6 +505,15 @@
             color: var(--eclipse-primary);
         }
         
+        /* Nova barra de velocidade - bonita e funcional */
+        .eclipse-range-container {
+            position: relative;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+        
         .eclipse-range {
             width: 100%;
             height: 6px;
@@ -367,24 +523,14 @@
             border-radius: 3px;
             border: 1px solid var(--eclipse-border);
             position: relative;
-        }
-        
-        .eclipse-range::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: ${config.autoAnswerDelay * 40}%; /* 1.5-2.5 = 60-100% */
-            background: var(--eclipse-primary);
-            border-radius: 3px;
+            cursor: pointer;
         }
         
         .eclipse-range::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             background: white;
             border: 2px solid var(--eclipse-primary);
@@ -392,12 +538,46 @@
             transition: all 0.15s ease;
             margin-top: -7px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
         
-        .eclipse-range::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
+        .eclipse-range::-webkit-slider-thumb:hover,
+        .eclipse-range::-webkit-slider-thumb:active {
+            transform: scale(1.2);
             background: var(--eclipse-primary);
             border-color: white;
+            z-index: 2;
+        }
+        
+        .eclipse-range-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 3px;
+            background: var(--eclipse-primary);
+        }
+        
+        .eclipse-range-marks {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            width: 100%;
+            top: 28px;
+        }
+        
+        .eclipse-range-mark {
+            width: 1px;
+            height: 6px;
+            background: var(--eclipse-border);
+        }
+        
+        .eclipse-range-label {
+            position: absolute;
+            top: 38px;
+            font-size: 12px;
+            color: var(--eclipse-text-muted);
+            transform: translateX(-50%);
         }
         
         .eclipse-footer {
@@ -524,10 +704,10 @@
         @media (max-width: 768px) {
             .eclipse-panel {
                 width: calc(100vw - 48px);
-                bottom: 24px;
+                top: auto;
+                bottom: 90px;
                 right: 24px;
-                left: auto;
-                max-height: 80vh;
+                max-height: 70vh;
             }
             
             .eclipse-toggle {
@@ -657,6 +837,26 @@
 
     // Inicializa a UI
     (async function initializeUI() {
+        // Cria o splash screen animado
+        const splash = document.createElement("div");
+        splash.className = "eclipse-splash";
+        splash.innerHTML = `
+            <div class="eclipse-splash-content">
+                <div class="eclipse-splash-title">Eclipse Lunar</div>
+                <div class="eclipse-splash-subtitle">Carregando sistema de automação</div>
+                <div class="eclipse-splash-loader">
+                    <div class="eclipse-splash-loader-ring"></div>
+                    <div class="eclipse-splash-loader-ring"></div>
+                    <div class="eclipse-splash-loader-ring"></div>
+                </div>
+                <div class="eclipse-splash-status">
+                    <div class="eclipse-splash-status-dot"></div>
+                    <div>Sistema inicializado</div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(splash);
+
         // Função Oneko (gatinho)
         function oneko() {
             const nekoEl = document.createElement("div");
@@ -809,6 +1009,15 @@
             if (features.darkMode) DarkReader.enable();
         });
 
+        // Espera um pouco para mostrar que está carregando
+        await delay(1800);
+        
+        // Faz o splash screen desaparecer suavemente
+        splash.classList.add("fadeout");
+        
+        // Espera a animação de fadeout terminar
+        await delay(500);
+
         // Cria o botão toggle
         const toggleBtn = document.createElement("div");
         toggleBtn.innerHTML = "🌙";
@@ -832,7 +1041,10 @@
         panel.className = "eclipse-panel";
         panel.innerHTML = `
             <div class="eclipse-header">
-                <div class="eclipse-title">Eclipse Lunar</div>
+                <div class="eclipse-title">
+                    <span class="eclipse-title-icon">🌙</span>
+                    Eclipse Lunar
+                </div>
                 <div class="eclipse-version">v2.1</div>
             </div>
             <div class="eclipse-tabs">
@@ -863,7 +1075,20 @@
                         <span>Velocidade de Resposta</span>
                         <span class="eclipse-speed-value">${config.autoAnswerDelay.toFixed(1)}s</span>
                     </div>
-                    <input type="range" class="eclipse-range" id="eclipse-speed" value="${config.autoAnswerDelay}" min="1.5" max="2.5" step="0.1">
+                    <div class="eclipse-range-container">
+                        <input type="range" class="eclipse-range" id="eclipse-speed" value="${config.autoAnswerDelay}" min="1.5" max="2.5" step="0.1">
+                        <div class="eclipse-range-track" style="width: ${((config.autoAnswerDelay - 1.5) / 1.0) * 100}%"></div>
+                        <div class="eclipse-range-marks">
+                            <div class="eclipse-range-mark"></div>
+                            <div class="eclipse-range-mark"></div>
+                            <div class="eclipse-range-mark"></div>
+                            <div class="eclipse-range-mark"></div>
+                            <div class="eclipse-range-mark"></div>
+                        </div>
+                        <div class="eclipse-range-label" style="left: 0%">Lenta</div>
+                        <div class="eclipse-range-label" style="left: 50%">Normal</div>
+                        <div class="eclipse-range-label" style="left: 100%">Rápida</div>
+                    </div>
                 </div>
             </div>
             <div id="eclipse-tab-visual" class="eclipse-tab-content">
@@ -962,12 +1187,28 @@
         // Configura o controle de velocidade
         const speedInput = document.getElementById('eclipse-speed');
         const speedValue = document.querySelector('.eclipse-speed-value');
-        if (speedInput && speedValue) {
-            speedInput.addEventListener('input', () => {
-                const newDelay = parseFloat(speedInput.value);
-                config.autoAnswerDelay = newDelay;
-                speedValue.textContent = `${newDelay.toFixed(1)}s`;
-                showToast(`Velocidade definida para ${newDelay.toFixed(1)}s`, "info", 1500);
+        const rangeTrack = document.querySelector('.eclipse-range-track');
+        
+        if (speedInput && speedValue && rangeTrack) {
+            // Função para atualizar a interface
+            const updateSpeedUI = () => {
+                const value = parseFloat(speedInput.value);
+                const percent = ((value - 1.5) / 1.0) * 100;
+                
+                speedValue.textContent = `${value.toFixed(1)}s`;
+                rangeTrack.style.width = `${percent}%`;
+            };
+            
+            // Atualiza imediatamente
+            updateSpeedUI();
+            
+            // Atualiza quando mover o slider
+            speedInput.addEventListener('input', updateSpeedUI);
+            
+            // Atualiza quando soltar o slider
+            speedInput.addEventListener('change', () => {
+                config.autoAnswerDelay = parseFloat(speedInput.value);
+                showToast(`Velocidade definida para ${config.autoAnswerDelay.toFixed(1)}s`, "info", 1500);
             });
         }
         
@@ -1005,6 +1246,81 @@
                 }
             }
         }
+        
+        // Configura o arrastar do painel
+        let isDragging = false;
+        let panelOffset = { x: 0, y: 0 };
+        
+        function startDragging(e) {
+            // Ignora se clicou em um botão ou input
+            if (e.target.closest('button, input, a, .eclipse-tab')) return;
+            
+            isDragging = true;
+            const rect = panel.getBoundingClientRect();
+            
+            // Calcula o offset do mouse em relação ao painel
+            panelOffset = {
+                x: e.clientX - rect.right,
+                y: e.clientY - rect.top
+            };
+            
+            panel.style.cursor = "grabbing";
+            panel.style.transition = "none";
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            // Calcula a nova posição
+            const newX = window.innerWidth - e.clientX + panelOffset.x;
+            const newY = e.clientY - panelOffset.y;
+            
+            // Limita a posição para não sair da tela
+            const maxX = window.innerWidth - 50;
+            const maxY = window.innerHeight - 50;
+            
+            panel.style.right = Math.min(newX, maxX) + "px";
+            panel.style.top = Math.max(80, Math.min(newY, maxY)) + "px";
+        }
+        
+        function stopDragging() {
+            isDragging = false;
+            panel.style.cursor = "default";
+            panel.style.transition = "transform 0.3s ease";
+        }
+        
+        // Event listeners para desktop
+        panel.addEventListener('mousedown', startDragging);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDragging);
+        
+        // Event listeners para touch (mobile)
+        panel.addEventListener('touchstart', (e) => {
+            // Converte touch para mouse event
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            startDragging(mouseEvent);
+            e.preventDefault();
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            drag(mouseEvent);
+            e.preventDefault();
+        }, { passive: false });
+        
+        document.addEventListener('touchend', () => {
+            stopDragging();
+        });
         
         // Inicia o game loop
         gameLoop();
