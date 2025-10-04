@@ -505,10 +505,10 @@
             color: var(--eclipse-primary);
         }
         
-        /* Nova barra de velocidade - bonita e funcional */
+        /* Nova barra de velocidade - bonita, profissional e funcional */
         .eclipse-range-container {
             position: relative;
-            height: 40px;
+            height: 50px;
             display: flex;
             align-items: center;
             margin-top: 8px;
@@ -521,32 +521,35 @@
             appearance: none;
             background: var(--eclipse-surface);
             border-radius: 3px;
-            border: 1px solid var(--eclipse-border);
             position: relative;
             cursor: pointer;
+        }
+        
+        .eclipse-range:focus {
+            outline: none;
         }
         
         .eclipse-range::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: white;
             border: 2px solid var(--eclipse-primary);
             cursor: pointer;
             transition: all 0.15s ease;
-            margin-top: -7px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            position: relative;
+            margin-top: -9px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 2;
         }
         
         .eclipse-range::-webkit-slider-thumb:hover,
         .eclipse-range::-webkit-slider-thumb:active {
-            transform: scale(1.2);
+            transform: scale(1.25);
             background: var(--eclipse-primary);
             border-color: white;
-            z-index: 2;
+            box-shadow: 0 0 0 8px rgba(114, 87, 255, 0.2);
         }
         
         .eclipse-range-track {
@@ -555,7 +558,7 @@
             left: 0;
             height: 100%;
             border-radius: 3px;
-            background: var(--eclipse-primary);
+            background: linear-gradient(90deg, var(--eclipse-primary), var(--eclipse-accent));
         }
         
         .eclipse-range-marks {
@@ -563,21 +566,31 @@
             justify-content: space-between;
             position: absolute;
             width: 100%;
-            top: 28px;
+            top: 12px;
+            pointer-events: none;
         }
         
         .eclipse-range-mark {
-            width: 1px;
-            height: 6px;
-            background: var(--eclipse-border);
+            width: 2px;
+            height: 8px;
+            background: var(--eclipse-text-muted);
+            border-radius: 1px;
         }
         
-        .eclipse-range-label {
+        .eclipse-range-mark.active {
+            height: 12px;
+            background: var(--eclipse-primary);
+        }
+        
+        .eclipse-range-labels {
+            display: flex;
+            justify-content: space-between;
             position: absolute;
-            top: 38px;
+            width: 100%;
+            top: 28px;
             font-size: 12px;
             color: var(--eclipse-text-muted);
-            transform: translateX(-50%);
+            pointer-events: none;
         }
         
         .eclipse-footer {
@@ -1079,15 +1092,17 @@
                         <input type="range" class="eclipse-range" id="eclipse-speed" value="${config.autoAnswerDelay}" min="1.5" max="2.5" step="0.1">
                         <div class="eclipse-range-track" style="width: ${((config.autoAnswerDelay - 1.5) / 1.0) * 100}%"></div>
                         <div class="eclipse-range-marks">
-                            <div class="eclipse-range-mark"></div>
-                            <div class="eclipse-range-mark"></div>
-                            <div class="eclipse-range-mark"></div>
-                            <div class="eclipse-range-mark"></div>
-                            <div class="eclipse-range-mark"></div>
+                            <div class="eclipse-range-mark ${config.autoAnswerDelay <= 1.7 ? 'active' : ''}"></div>
+                            <div class="eclipse-range-mark ${config.autoAnswerDelay > 1.7 && config.autoAnswerDelay <= 1.9 ? 'active' : ''}"></div>
+                            <div class="eclipse-range-mark ${config.autoAnswerDelay > 1.9 && config.autoAnswerDelay <= 2.1 ? 'active' : ''}"></div>
+                            <div class="eclipse-range-mark ${config.autoAnswerDelay > 2.1 && config.autoAnswerDelay <= 2.3 ? 'active' : ''}"></div>
+                            <div class="eclipse-range-mark ${config.autoAnswerDelay > 2.3 ? 'active' : ''}"></div>
                         </div>
-                        <div class="eclipse-range-label" style="left: 0%">Lenta</div>
-                        <div class="eclipse-range-label" style="left: 50%">Normal</div>
-                        <div class="eclipse-range-label" style="left: 100%">Rápida</div>
+                        <div class="eclipse-range-labels">
+                            <div>Lenta</div>
+                            <div>Normal</div>
+                            <div>Rápida</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1188,6 +1203,7 @@
         const speedInput = document.getElementById('eclipse-speed');
         const speedValue = document.querySelector('.eclipse-speed-value');
         const rangeTrack = document.querySelector('.eclipse-range-track');
+        const rangeMarks = document.querySelectorAll('.eclipse-range-mark');
         
         if (speedInput && speedValue && rangeTrack) {
             // Função para atualizar a interface
@@ -1195,17 +1211,26 @@
                 const value = parseFloat(speedInput.value);
                 const percent = ((value - 1.5) / 1.0) * 100;
                 
+                // Atualiza o valor exibido
                 speedValue.textContent = `${value.toFixed(1)}s`;
+                
+                // Atualiza a trilha
                 rangeTrack.style.width = `${percent}%`;
+                
+                // Atualiza os marcadores
+                rangeMarks.forEach((mark, index) => {
+                    const markValue = 1.5 + (index * 0.25);
+                    mark.classList.toggle('active', value >= markValue);
+                });
             };
             
             // Atualiza imediatamente
             updateSpeedUI();
             
-            // Atualiza quando mover o slider
+            // Atualiza durante o movimento do slider (input)
             speedInput.addEventListener('input', updateSpeedUI);
             
-            // Atualiza quando soltar o slider
+            // Atualiza quando soltar o slider (change)
             speedInput.addEventListener('change', () => {
                 config.autoAnswerDelay = parseFloat(speedInput.value);
                 showToast(`Velocidade definida para ${config.autoAnswerDelay.toFixed(1)}s`, "info", 1500);
@@ -1253,7 +1278,7 @@
         
         function startDragging(e) {
             // Ignora se clicou em um botão ou input
-            if (e.target.closest('button, input, a, .eclipse-tab')) return;
+            if (e.target.closest('button, input, a, .eclipse-tab, .eclipse-range')) return;
             
             isDragging = true;
             const rect = panel.getBoundingClientRect();
