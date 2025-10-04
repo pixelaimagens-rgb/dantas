@@ -2,13 +2,13 @@
     if (document.getElementById("eclipse-panel")) return;
 
     const features = {
+        autoAnswer: false,
+        revealAnswers: false,
         questionSpoof: false,
         videoSpoof: false,
-        revealAnswers: false,
-        autoAnswer: false,
         darkMode: true,
         rgbLogo: false,
-        oneko: true
+        oneko: false
     };
 
     const config = {
@@ -31,89 +31,78 @@
 
     const style = document.createElement("style");
     style.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap');
         :root {
             --eclipse-bg: #1a1b26;
             --eclipse-surface: #242532;
             --eclipse-border: #3a3b4b;
             --eclipse-primary: #7257ff;
-            --eclipse-primary-hover: #8a72ff;
             --eclipse-text: #e6e6ff;
             --eclipse-text-muted: #a0a0c0;
-            --eclipse-accent: #43d9ad;
         }
         
-        .eclipse-splash {
+        .eclipse-toast {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: var(--eclipse-bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 999999;
-            color: var(--eclipse-primary);
-            font-size: 32px;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--eclipse-surface);
+            color: var(--eclipse-text);
+            border-radius: 8px;
+            padding: 12px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
             font-family: 'Inter', sans-serif;
-            font-weight: 600;
+            z-index: 999999;
             transition: opacity 0.3s;
-        }
-        
-        .eclipse-splash.fadeout {
-            opacity: 0;
-            pointer-events: none;
+            opacity: 1;
+            text-align: center;
+            max-width: 80%;
         }
         
         .eclipse-toggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 48px;
-            height: 48px;
-            background: var(--eclipse-surface);
-            border: 1px solid var(--eclipse-border);
-            border-radius: 12px;
+            width: 56px;
+            height: 56px;
+            background: var(--eclipse-primary);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 100000;
-            color: var(--eclipse-primary);
-            font-size: 20px;
+            color: white;
+            font-size: 24px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             font-family: 'Inter', sans-serif;
             transition: all 0.2s ease;
-            backdrop-filter: blur(4px);
         }
         
         .eclipse-toggle:hover {
-            background: var(--eclipse-primary);
-            color: white;
-            transform: translateY(-2px);
+            transform: scale(1.05);
         }
         
         .eclipse-panel {
             position: fixed;
-            bottom: 80px;
+            bottom: 20px;
             right: 20px;
-            width: 320px;
+            left: 20px;
             max-height: 80vh;
             background: var(--eclipse-bg);
-            border-radius: 12px;
+            border-radius: 16px;
             border: 1px solid var(--eclipse-border);
             z-index: 99999;
             color: var(--eclipse-text);
             font-family: 'Inter', sans-serif;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
             display: none;
             overflow: hidden;
         }
         
         .eclipse-header {
-            padding: 16px 20px;
+            padding: 16px;
             border-bottom: 1px solid var(--eclipse-border);
             display: flex;
             justify-content: space-between;
@@ -124,9 +113,6 @@
             font-weight: 600;
             font-size: 18px;
             color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         
         .eclipse-version {
@@ -143,17 +129,14 @@
         }
         
         .eclipse-tab {
-            padding: 12px 16px;
+            flex: 1;
+            padding: 14px 0;
             cursor: pointer;
             color: var(--eclipse-text-muted);
             font-weight: 500;
             font-size: 14px;
+            text-align: center;
             transition: all 0.2s ease;
-            position: relative;
-        }
-        
-        .eclipse-tab:hover {
-            color: var(--eclipse-primary-hover);
         }
         
         .eclipse-tab.active {
@@ -163,12 +146,12 @@
         
         .eclipse-tab.active::after {
             content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 2px;
+            display: block;
+            margin: 0 auto;
+            width: 24px;
+            height: 3px;
             background: var(--eclipse-primary);
+            border-radius: 3px;
         }
         
         .eclipse-tab-content {
@@ -199,13 +182,13 @@
         
         .eclipse-button {
             width: 100%;
-            padding: 12px 16px;
+            padding: 16px;
             background: var(--eclipse-surface);
             color: var(--eclipse-text);
             border: 1px solid var(--eclipse-border);
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             text-align: left;
             margin-bottom: 12px;
@@ -216,24 +199,22 @@
         }
         
         .eclipse-button:hover {
-            border-color: var(--eclipse-primary-hover);
-            background: rgba(114, 87, 255, 0.1);
+            border-color: var(--eclipse-primary);
         }
         
         .eclipse-button.active {
             background: rgba(114, 87, 255, 0.2);
             border-color: var(--eclipse-primary);
             color: white;
-            font-weight: 500;
         }
         
         .eclipse-icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 20px;
         }
         
         .eclipse-input-group {
@@ -245,7 +226,7 @@
         .eclipse-input-label {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
+            font-size: 14px;
             color: var(--eclipse-text-muted);
             margin-bottom: 8px;
         }
@@ -268,39 +249,25 @@
         .eclipse-range::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: var(--eclipse-primary);
             cursor: pointer;
-            transition: all 0.15s ease;
-            margin-top: -6px;
-        }
-        
-        .eclipse-range::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            background: var(--eclipse-primary-hover);
+            margin-top: -8px;
         }
         
         .eclipse-footer {
-            padding: 12px 16px;
+            padding: 16px;
             border-top: 1px solid var(--eclipse-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
+            text-align: center;
+            font-size: 13px;
             color: var(--eclipse-text-muted);
         }
         
         .eclipse-footer a {
             color: var(--eclipse-primary);
             text-decoration: none;
-            transition: color 0.2s;
-        }
-        
-        .eclipse-footer a:hover {
-            color: var(--eclipse-primary-hover);
-            text-decoration: underline;
         }
         
         .eclipse-about-content {
@@ -309,90 +276,21 @@
         
         .eclipse-about-content p {
             color: var(--eclipse-text-muted);
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.5;
             margin-bottom: 16px;
         }
         
-        .eclipse-features {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin: 16px 0;
-        }
-        
-        .eclipse-feature {
-            background: var(--eclipse-surface);
-            border: 1px solid var(--eclipse-border);
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 13px;
-        }
-        
-        .eclipse-feature-title {
-            font-weight: 500;
-            color: var(--eclipse-primary);
-            margin-bottom: 4px;
-        }
-        
-        .eclipse-social-links {
-            display: flex;
-            gap: 16px;
-            margin-top: 16px;
-        }
-        
-        .eclipse-social-btn {
-            color: var(--eclipse-text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-        
-        .eclipse-social-btn:hover {
-            color: var(--eclipse-primary);
-        }
-        
         .eclipse-credits {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--eclipse-text-muted);
-            margin-top: 20px;
+            margin-top: 16px;
             padding-top: 12px;
             border-top: 1px solid var(--eclipse-border);
         }
         
         .eclipse-credits a {
             color: var(--eclipse-primary);
-        }
-        
-        .eclipse-toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--eclipse-surface);
-            color: var(--eclipse-text);
-            border-radius: 8px;
-            padding: 12px 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            z-index: 999999;
-            transition: opacity 0.3s;
-            border-left: 3px solid var(--eclipse-primary);
-            opacity: 1;
-        }
-        
-        @media (max-width: 768px) {
-            .eclipse-panel {
-                width: calc(100vw - 40px);
-                bottom: 20px;
-                right: 20px;
-                left: auto;
-            }
-            
-            .eclipse-toggle {
-                bottom: 20px;
-                right: 20px;
-            }
         }
     `;
     document.head.appendChild(style);
@@ -413,7 +311,6 @@
                                     widget.options.choices.forEach(choice => {
                                         if (choice.correct) {
                                             choice.content = "✅ " + choice.content;
-                                            showToast("Resposta revelada");
                                         }
                                     });
                                 }
@@ -447,7 +344,6 @@
                     itemData.question.content = phrases[Math.floor(Math.random() * phrases.length)] + `\n\n[[☃ radio 1]]`;
                     itemData.question.widgets = { "radio 1": { type: "radio", options: { choices: [{ content: "✅", correct: true }, { content: "❌", correct: false }] } } };
                     responseObj.data.assessmentItem.item.itemData = JSON.stringify(itemData);
-                    showToast("Questão modificada");
                     return new Response(JSON.stringify(responseObj), { status: 200, statusText: "OK", headers: originalResponse.headers });
                 }
             } catch (e) {}
@@ -461,10 +357,8 @@
         const now = performance.now();
         frameCount++;
         if (now - lastFrameTime >= 1000) {
-            const fpsCounter = document.getElementById("eclipse-fps");
-            if (fpsCounter) fpsCounter.textContent = `FPS: ${frameCount}`;
-            frameCount = 0;
             lastFrameTime = now;
+            frameCount = 0;
         }
         requestAnimationFrame(gameLoop);
     }
@@ -482,11 +376,6 @@
             await delay(config.autoAnswerDelay * 1000);
         }
     })();
-
-    const splash = document.createElement("div");
-    splash.className = "eclipse-splash";
-    splash.textContent = "Eclipse Lunar";
-    document.body.appendChild(splash);
 
     (async function initializeUI() {
         function oneko() {
@@ -633,207 +522,153 @@
             if (features.darkMode) DarkReader.enable();
         });
 
-        setTimeout(() => {
-            splash.classList.add("fadeout");
-            setTimeout(() => {
-                splash.remove();
-                gameLoop(); 
-
-                const toggleBtn = document.createElement("div");
-                toggleBtn.innerHTML = "☾";
-                toggleBtn.className = "eclipse-toggle";
-                toggleBtn.onclick = () => {
-                    const p = document.getElementById("eclipse-panel");
-                    if (p) p.style.display = p.style.display === "none" ? "block" : "none";
-                };
-                document.body.appendChild(toggleBtn);
+        // Cria o botão de toggle diretamente sem splash screen
+        const toggleBtn = document.createElement("div");
+        toggleBtn.innerHTML = "☾";
+        toggleBtn.className = "eclipse-toggle";
+        toggleBtn.onclick = () => {
+            const p = document.getElementById("eclipse-panel");
+            if (p) p.style.display = p.style.display === "none" ? "block" : "none";
+        };
+        document.body.appendChild(toggleBtn);
+        
+        const panel = document.createElement("div");
+        panel.id = "eclipse-panel";
+        panel.className = "eclipse-panel";
+        panel.innerHTML = `
+            <div class="eclipse-header">
+                <div class="eclipse-title">Eclipse Lunar</div>
+                <div class="eclipse-version">v2.0</div>
+            </div>
+            <div class="eclipse-tabs">
+                <div class="eclipse-tab active" data-tab="main">Principal</div>
+                <div class="eclipse-tab" data-tab="visual">Visual</div>
+                <div class="eclipse-tab" data-tab="about">Sobre</div>
+            </div>
+            <div id="eclipse-tab-main" class="eclipse-tab-content active">
+                <button id="eclipse-btn-auto" class="eclipse-button">
+                    <span class="eclipse-icon">⚡</span>
+                    <span>Resposta Automática</span>
+                </button>
+                <button id="eclipse-btn-reveal" class="eclipse-button">
+                    <span class="eclipse-icon">🔍</span>
+                    <span>Revelar Respostas</span>
+                </button>
+                <button id="eclipse-btn-question" class="eclipse-button">
+                    <span class="eclipse-icon">📝</span>
+                    <span>Modificar Questões</span>
+                </button>
+                <button id="eclipse-btn-video" class="eclipse-button">
+                    <span class="eclipse-icon">▶️</span>
+                    <span>Modificar Vídeos</span>
+                </button>
                 
-                const panel = document.createElement("div");
-                panel.id = "eclipse-panel";
-                panel.className = "eclipse-panel";
-                panel.innerHTML = `
-                    <div class="eclipse-header">
-                        <div class="eclipse-title">Eclipse Lunar</div>
-                        <div class="eclipse-version">v2.0</div>
+                <div class="eclipse-input-group">
+                    <div class="eclipse-input-label">
+                        <span>Velocidade</span>
+                        <span class="eclipse-speed-value">${config.autoAnswerDelay.toFixed(1)}s</span>
                     </div>
-                    <div class="eclipse-tabs">
-                        <div class="eclipse-tab active" data-tab="main">Principal</div>
-                        <div class="eclipse-tab" data-tab="visual">Visual</div>
-                        <div class="eclipse-tab" data-tab="about">Sobre</div>
+                    <input type="range" class="eclipse-range" id="eclipse-speed" value="${config.autoAnswerDelay}" min="1.5" max="2.5" step="0.1">
+                </div>
+            </div>
+            <div id="eclipse-tab-visual" class="eclipse-tab-content">
+                <button id="eclipse-btn-dark" class="eclipse-button active">
+                    <span class="eclipse-icon">🌙</span>
+                    <span>Modo Escuro</span>
+                </button>
+                <button id="eclipse-btn-rgb" class="eclipse-button">
+                    <span class="eclipse-icon">🎨</span>
+                    <span>Logo RGB</span>
+                </button>
+                <button id="eclipse-btn-oneko" class="eclipse-button">
+                    <span class="eclipse-icon">🐱</span>
+                    <span>Oneko Gatinho</span>
+                </button>
+            </div>
+            <div id="eclipse-tab-about" class="eclipse-tab-content">
+                <div class="eclipse-about-content">
+                    <p>Sistema de automação para Khan Academy com foco em melhorar sua experiência de aprendizado.</p>
+                    
+                    <div class="eclipse-credits">
+                        Desenvolvido por <a href="https://github.com/KilluaWq" target="_blank">@bakai</a><br>
+                        Eclipse Lunar • Sempre à frente
                     </div>
-                    <div id="eclipse-tab-main" class="eclipse-tab-content active">
-                        <button id="eclipse-btn-auto" class="eclipse-button">
-                            <span class="eclipse-icon">⚡</span>
-                            <span>Resposta Automática</span>
-                        </button>
-                        <button id="eclipse-btn-reveal" class="eclipse-button">
-                            <span class="eclipse-icon">🔍</span>
-                            <span>Revelar Respostas</span>
-                        </button>
-                        <button id="eclipse-btn-question" class="eclipse-button">
-                            <span class="eclipse-icon">📝</span>
-                            <span>Modificar Questões</span>
-                        </button>
-                        <button id="eclipse-btn-video" class="eclipse-button">
-                            <span class="eclipse-icon">▶️</span>
-                            <span>Modificar Vídeos</span>
-                        </button>
-                        
-                        <div class="eclipse-input-group">
-                            <div class="eclipse-input-label">
-                                <span>Velocidade</span>
-                                <span class="eclipse-speed-value">${config.autoAnswerDelay.toFixed(1)}s</span>
-                            </div>
-                            <input type="range" class="eclipse-range" id="eclipse-speed" value="${config.autoAnswerDelay}" min="1.5" max="2.5" step="0.1">
-                        </div>
-                    </div>
-                    <div id="eclipse-tab-visual" class="eclipse-tab-content">
-                        <button id="eclipse-btn-dark" class="eclipse-button active">
-                            <span class="eclipse-icon">🌙</span>
-                            <span>Modo Escuro</span>
-                        </button>
-                        <button id="eclipse-btn-rgb" class="eclipse-button">
-                            <span class="eclipse-icon">🎨</span>
-                            <span>Logo RGB</span>
-                        </button>
-                        <button id="eclipse-btn-oneko" class="eclipse-button">
-                            <span class="eclipse-icon">🐱</span>
-                            <span>Oneko Gatinho</span>
-                        </button>
-                    </div>
-                    <div id="eclipse-tab-about" class="eclipse-tab-content">
-                        <div class="eclipse-about-content">
-                            <p>Sistema de automação para Khan Academy com foco em melhorar sua experiência de aprendizado.</p>
-                            
-                            <div class="eclipse-features">
-                                <div class="eclipse-feature">
-                                    <div class="eclipse-feature-title">Automação Inteligente</div>
-                                    <div>Respostas automáticas com controle de velocidade ajustável</div>
-                                </div>
-                                <div class="eclipse-feature">
-                                    <div class="eclipse-feature-title">Segurança Acadêmica</div>
-                                    <div>Revelação discreta de respostas e modificação de conteúdo</div>
-                                </div>
-                                <div class="eclipse-feature">
-                                    <div class="eclipse-feature-title">Personalização Completa</div>
-                                    <div>Adapte a interface ao seu estilo de aprendizado</div>
-                                </div>
-                            </div>
-                            
-                            <div class="eclipse-social-links">
-                                <a href="https://discord.gg/QAm62DDJ" target="_blank" class="eclipse-social-btn">Discord</a>
-                                <a href="https://github.com/KilluaWq" target="_blank" class="eclipse-social-btn">GitHub</a>
-                            </div>
-                            
-                            <div class="eclipse-credits">
-                                Desenvolvido por <a href="https://github.com/KilluaWq" target="_blank">@bakai</a><br>
-                                Eclipse Lunar • Sempre à frente
-                            </div>
-                        </div>
-                    </div>
-                    <div class="eclipse-footer">
-                        <a href="https://discord.gg/QAm62DDJ" target="_blank">Comunidade Eclipse</a>
-                        <span id="eclipse-fps">FPS: ...</span>
-                    </div>
-                `;
-                document.body.appendChild(panel);
+                </div>
+            </div>
+            <div class="eclipse-footer">
+                <a href="https://discord.gg/QAm62DDJ" target="_blank">Comunidade Eclipse</a>
+            </div>
+        `;
+        document.body.appendChild(panel);
 
-                const setupToggleButton = (buttonId, featureName, callback) => {
-                    const button = document.getElementById(buttonId);
-                    if (button) {
-                        button.addEventListener('click', () => {
-                            features[featureName] = !features[featureName];
-                            button.classList.toggle('active', features[featureName]);
-                            if (callback) callback(features[featureName]);
-                        });
-                    }
-                };
-                
-                setupToggleButton('eclipse-btn-auto', 'autoAnswer');
-                setupToggleButton('eclipse-btn-question', 'questionSpoof');
-                setupToggleButton('eclipse-btn-video', 'videoSpoof');
-                setupToggleButton('eclipse-btn-reveal', 'revealAnswers');
-                setupToggleButton('eclipse-btn-dark', 'darkMode', (isActive) => {
-                    if (typeof DarkReader === 'undefined') return;
-                    isActive ? DarkReader.enable() : DarkReader.disable();
-                });
-                setupToggleButton('eclipse-btn-rgb', 'rgbLogo', toggleRgbLogo);
-                setupToggleButton('eclipse-btn-oneko', 'oneko', toggleOnekoJs);
-
-                const speedInput = document.getElementById('eclipse-speed');
-                const speedValue = document.querySelector('.eclipse-speed-value');
-                if (speedInput && speedValue) {
-                    speedInput.addEventListener('input', () => {
-                        const newDelay = parseFloat(speedInput.value);
-                        config.autoAnswerDelay = newDelay;
-                        speedValue.textContent = `${newDelay.toFixed(1)}s`;
-                    });
-                }
-                
-                document.querySelectorAll('.eclipse-tab').forEach(tab => {
-                    tab.addEventListener('click', () => {
-                        document.querySelectorAll('.eclipse-tab, .eclipse-tab-content').forEach(el => el.classList.remove('active'));
-                        tab.classList.add('active');
-                        document.getElementById(`eclipse-tab-${tab.dataset.tab}`).classList.add('active');
-                    });
-                });
-
-                function toggleRgbLogo(isActive) {
-                    const khanLogo = document.querySelector('path[fill="#14bf96"]');
-                    if (!khanLogo) return showToast("Logo não encontrada");
-                    khanLogo.style.animation = isActive ? 'hueShift 5s infinite linear' : '';
-                }
-
-                function toggleOnekoJs(isActive) {
-                    if (isActive) {
-                        if (!document.getElementById("oneko")) {
-                            oneko();
-                            showToast("Gatinho ativado");
-                        }
+        const setupToggleButton = (buttonId, featureName, callback) => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', () => {
+                    features[featureName] = !features[featureName];
+                    button.classList.toggle('active', features[featureName]);
+                    if (callback) callback(features[featureName]);
+                    
+                    if (features[featureName]) {
+                        showToast(`${button.textContent.trim()} ativado`);
                     } else {
-                        const onekoEl = document.getElementById("oneko");
-                        if (onekoEl) {
-                            clearInterval(window.onekoInterval);
-                            onekoEl.remove();
-                        }
+                        showToast(`${button.textContent.trim()} desativado`);
                     }
-                }
-                
-                let dragging = false, offsetX = 0, offsetY = 0;
-                const startDrag = (e) => {
-                    if (e.target.closest("button") || e.target.closest("input")) return;
-                    dragging = true;
-                    const touch = e.touches ? e.touches[0] : null;
-                    const clientX = touch ? touch.clientX : e.clientX;
-                    const clientY = touch ? touch.clientY : e.clientY;
-                    offsetX = clientX - panel.getBoundingClientRect().right;
-                    offsetY = clientY - panel.getBoundingClientRect().top;
-                    panel.style.cursor = "grabbing";
-                };
-                
-                const onDrag = (e) => {
-                    if (dragging) {
-                        e.preventDefault();
-                        const touch = e.touches ? e.touches[0] : null;
-                        const clientX = touch ? touch.clientX : e.clientX;
-                        const clientY = touch ? touch.clientY : e.clientY;
-                        panel.style.right = `${window.innerWidth - clientX + offsetX}px`;
-                        panel.style.top = `${clientY - offsetY}px`;
-                    }
-                };
-                
-                const endDrag = () => { 
-                    dragging = false; 
-                    panel.style.cursor = "default"; 
-                };
+                });
+            }
+        };
+        
+        setupToggleButton('eclipse-btn-auto', 'autoAnswer');
+        setupToggleButton('eclipse-btn-question', 'questionSpoof');
+        setupToggleButton('eclipse-btn-video', 'videoSpoof');
+        setupToggleButton('eclipse-btn-reveal', 'revealAnswers');
+        setupToggleButton('eclipse-btn-dark', 'darkMode', (isActive) => {
+            if (typeof DarkReader === 'undefined') return;
+            isActive ? DarkReader.enable() : DarkReader.disable();
+        });
+        setupToggleButton('eclipse-btn-rgb', 'rgbLogo', toggleRgbLogo);
+        setupToggleButton('eclipse-btn-oneko', 'oneko', toggleOnekoJs);
 
-                panel.addEventListener("mousedown", startDrag);
-                document.addEventListener("mousemove", onDrag);
-                document.addEventListener("mouseup", endDrag);
-                panel.addEventListener("touchstart", startDrag, { passive: false });
-                document.addEventListener("touchmove", onDrag, { passive: false });
-                document.addEventListener("touchend", endDrag);
-            }, 800);
-        }, 1500);
+        const speedInput = document.getElementById('eclipse-speed');
+        const speedValue = document.querySelector('.eclipse-speed-value');
+        if (speedInput && speedValue) {
+            speedInput.addEventListener('input', () => {
+                const newDelay = parseFloat(speedInput.value);
+                config.autoAnswerDelay = newDelay;
+                speedValue.textContent = `${newDelay.toFixed(1)}s`;
+                showToast(`Velocidade definida para ${newDelay.toFixed(1)}s`);
+            });
+        }
+        
+        document.querySelectorAll('.eclipse-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.eclipse-tab, .eclipse-tab-content').forEach(el => el.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`eclipse-tab-${tab.dataset.tab}`).classList.add('active');
+            });
+        });
+
+        function toggleRgbLogo(isActive) {
+            const khanLogo = document.querySelector('path[fill="#14bf96"]');
+            if (!khanLogo) return;
+            khanLogo.style.animation = isActive ? 'hueShift 5s infinite linear' : '';
+        }
+
+        function toggleOnekoJs(isActive) {
+            if (isActive) {
+                if (!document.getElementById("oneko")) {
+                    oneko();
+                }
+            } else {
+                const onekoEl = document.getElementById("oneko");
+                if (onekoEl) {
+                    clearInterval(window.onekoInterval);
+                    onekoEl.remove();
+                }
+            }
+        }
+        
+        // Inicia o game loop
+        gameLoop();
     })();
 })();
