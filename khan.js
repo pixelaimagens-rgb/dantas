@@ -7,12 +7,16 @@
         questionSpoof: false,
         videoSpoof: false,
         darkMode: true,
-        rgbLogo: false
+        rgbLogo: false,
+        music: false
     };
 
     const config = {
         autoAnswerDelay: 1.5
     };
+
+    let youtubePlayer;
+    let playerReady = false;
 
     function showToast(message, type = "info", duration = 3000) {
         const toast = document.createElement("div");
@@ -67,23 +71,6 @@
         @keyframes shine {
             0% { left: -100%; }
             100% { left: 100%; }
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% {
-                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-            }
-            0% { transform: translateY(0) scale(1); }
-            20% { transform: translateY(-15px) scale(1.05); }
-            53% { transform: translateY(-7px) scale(1.02); }
-            80% { transform: translateY(0) scale(1.01); }
-            100% { transform: translateY(0) scale(1); }
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-            100% { transform: translateY(0px); }
         }
         
         .eclipse-splash {
@@ -266,7 +253,7 @@
             z-index: 100000;
             color: white;
             font-size: 28px;
-            box-shadow: 0 6px 16px rgba(114, 87, 255, 0.35);
+            box-shadow: 0 6px 20px rgba(114, 87, 255, 0.35);
             font-family: 'Inter', sans-serif;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(8px);
@@ -284,14 +271,6 @@
         .eclipse-toggle:active {
             transform: scale(1) translateY(0);
             box-shadow: 0 4px 12px rgba(114, 87, 255, 0.3);
-        }
-        
-        .eclipse-toggle.bounce {
-            animation: bounce 0.5s;
-        }
-        
-        .eclipse-toggle.float {
-            animation: float 3s ease-in-out infinite;
         }
         
         .eclipse-panel {
@@ -768,6 +747,53 @@
                 margin: 0 12px;
             }
         }
+        
+        /* Estilos específicos para o player de música */
+        .eclipse-music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--eclipse-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99998;
+            box-shadow: 0 4px 12px rgba(114, 87, 255, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .eclipse-music-player:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(114, 87, 255, 0.4);
+        }
+        
+        .eclipse-music-player.active {
+            animation: pulse 2s infinite;
+        }
+        
+        .eclipse-music-icon {
+            color: white;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .eclipse-music-player:hover .eclipse-music-icon {
+            transform: scale(1.1);
+        }
+        
+        .youtube-player {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            visibility: hidden;
+        }
     `;
     document.head.appendChild(style);
 
@@ -825,8 +851,8 @@
                             type: "radio", 
                             options: { 
                                 choices: [
-                                    { content: "✅ Correto", correct: true }, 
-                                    { content: "❌ Errado (nao clique aqui animal)", correct: false }
+                                    { content: "✅ Confirmar", correct: true }, 
+                                    { content: "❌ Cancelar", correct: false }
                                 ] 
                             } 
                         } 
@@ -876,6 +902,82 @@
             await delay(config.autoAnswerDelay * 1000);
         }
     })();
+
+    // Função para carregar a API do YouTube
+    function loadYouTubeAPI() {
+        return new Promise((resolve) => {
+            if (window.YT) {
+                resolve();
+                return;
+            }
+            
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            
+            window.onYouTubeIframeAPIReady = function() {
+                resolve();
+            };
+        });
+    }
+
+    // Função para criar o player do YouTube
+    function createYouTubePlayer() {
+        // Cria um iframe escondido para o player do YouTube
+        const playerDiv = document.createElement('div');
+        playerDiv.id = 'youtube-player';
+        playerDiv.className = 'youtube-player';
+        document.body.appendChild(playerDiv);
+        
+        youtubePlayer = new YT.Player('youtube-player', {
+            height: '0',
+            width: '0',
+            videoId: 'y_HY1jZlUP0',
+            playerVars: {
+                'playsinline': 1,
+                'autoplay': 0,
+                'loop': 1,
+                'playlist': 'y_HY1jZlUP0'
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerReady(event) {
+        playerReady = true;
+        // Não reproduz automaticamente - espera o usuário ativar
+        showToast("Música carregada. Clique no ícone de música para reproduzir", "info", 3000);
+    }
+
+    function onPlayerStateChange(event) {
+        // Lida com mudanças de estado do player
+        if (event.data === YT.PlayerState.PLAYING) {
+            features.music = true;
+            document.getElementById('music-btn').classList.add('active');
+            showToast("Música reproduzindo", "success", 2000);
+        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+            features.music = false;
+            document.getElementById('music-btn').classList.remove('active');
+        }
+    }
+
+    // Função para reproduzir/pausar a música
+    function toggleMusic() {
+        if (!playerReady) {
+            showToast("Player ainda está carregando, aguarde...", "info", 2000);
+            return;
+        }
+        
+        if (features.music) {
+            youtubePlayer.pauseVideo();
+        } else {
+            youtubePlayer.playVideo();
+        }
+    }
 
     // Inicializa a UI
     (async function initializeUI() {
@@ -927,29 +1029,38 @@
         // Espera a animação de fadeout terminar
         await delay(500);
 
+        // CRIA O BOTÃO DE MÚSICA
+        const musicBtn = document.createElement("div");
+        musicBtn.id = "music-btn";
+        musicBtn.className = "eclipse-music-player";
+        musicBtn.innerHTML = '<div class="eclipse-music-icon">🎵</div>';
+        musicBtn.title = "Música de fundo";
+        
+        musicBtn.addEventListener('click', () => {
+            toggleMusic();
+        });
+        
+        document.body.appendChild(musicBtn);
+
         // CRIA O BOTÃO DE MENU
         const toggleBtn = document.createElement("div");
-        toggleBtn.className = "eclipse-toggle float";
-        toggleBtn.innerHTML = "☰";
-        
+        toggleBtn.className = "eclipse-toggle";
+        toggleBtn.innerHTML = "🌙";
         toggleBtn.onclick = () => {
             const p = document.getElementById("eclipse-panel");
             if (p) {
                 if (p.style.display === "block") {
                     p.style.display = "none";
                     toggleBtn.classList.remove('active');
-                    toggleBtn.classList.remove('float');
                 } else {
                     p.style.display = "block";
                     setTimeout(() => {
                         p.classList.add("active");
                         toggleBtn.classList.add('active');
-                        toggleBtn.classList.add('float');
                     }, 10);
                 }
             }
         };
-        
         document.body.appendChild(toggleBtn);
         
         // Cria o painel principal
@@ -1018,6 +1129,10 @@
                 <button id="eclipse-btn-rgb" class="eclipse-button">
                     <span class="eclipse-icon">🎨</span>
                     <span>Logo RGB Dinâmico</span>
+                </button>
+                <button id="eclipse-btn-music" class="eclipse-button">
+                    <span class="eclipse-icon">🎵</span>
+                    <span>Música de Fundo</span>
                 </button>
             </div>
             <div id="eclipse-tab-about" class="eclipse-tab-content">
@@ -1097,6 +1212,11 @@
             isActive ? DarkReader.enable() : DarkReader.disable();
         });
         setupToggleButton('eclipse-btn-rgb', 'rgbLogo', toggleRgbLogo);
+        
+        // Configura o botão de música
+        setupToggleButton('eclipse-btn-music', 'music', (isActive) => {
+            toggleMusic();
+        });
 
         // Configura o controle de velocidade
         const speedInput = document.getElementById('eclipse-speed');
@@ -1158,7 +1278,6 @@
         // Configura o arrastar do painel
         let isDragging = false;
         let panelOffset = { x: 0, y: 0 };
-        let lastDragTime = 0;
         
         function startDragging(e) {
             // Ignora se clicou em um botão ou input
@@ -1175,11 +1294,6 @@
             
             panel.style.cursor = "grabbing";
             panel.style.transition = "none";
-            toggleBtn.style.transition = "none";
-            toggleBtn.classList.remove('float');
-            
-            // Marca o tempo do início do drag
-            lastDragTime = Date.now();
         }
         
         function drag(e) {
@@ -1202,19 +1316,6 @@
             isDragging = false;
             panel.style.cursor = "default";
             panel.style.transition = "transform 0.3s ease";
-            toggleBtn.style.transition = "all 0.3s ease";
-            
-            // Adiciona um efeito de bounce quando solta
-            const dragDuration = Date.now() - lastDragTime;
-            if (dragDuration < 300) { // Se foi um movimento rápido
-                toggleBtn.classList.add('bounce');
-                setTimeout(() => {
-                    toggleBtn.classList.remove('bounce');
-                    toggleBtn.classList.add('float');
-                }, 500);
-            } else {
-                toggleBtn.classList.add('float');
-            }
         }
         
         // Event listeners para desktop
@@ -1248,6 +1349,10 @@
         document.addEventListener('touchend', () => {
             stopDragging();
         });
+        
+        // Carrega a API do YouTube e cria o player
+        await loadYouTubeAPI();
+        createYouTubePlayer();
         
         // Inicia o game loop
         gameLoop();
