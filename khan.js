@@ -8,7 +8,6 @@
         videoSpoof: false,
         darkMode: true,
         rgbLogo: false
-        // Removi a feature 'oneko' pois não será mais necessária
     };
 
     const config = {
@@ -40,13 +39,13 @@
             --eclipse-bg: #1a1b26;
             --eclipse-surface: #242532;
             --eclipse-border: #3a3b4b;
-            --eclipse-primary: #7257ff;
-            --eclipse-primary-light: #8a72ff;
-            --eclipse-accent: #43d9ad;
+            --eclipse-primary: #560bad;  /* Nova cor principal - roxo profundo */
+            --eclipse-primary-light: #3a86ff;  /* Nova cor secundária - azul vibrante */
+            --eclipse-accent: #72efdd;  /* Verde água suave para destaque */
             --eclipse-text: #e6e6ff;
             --eclipse-text-muted: #a0a0c0;
-            --eclipse-success: #43d9ad;
-            --eclipse-error: #ff6b6b;
+            --eclipse-success: #4ade80;
+            --eclipse-error: #f87171;
         }
         
         @keyframes fadeIn {
@@ -55,9 +54,9 @@
         }
         
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(114, 87, 255, 0.4); }
-            70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(114, 87, 255, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(114, 87, 255, 0); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(58, 134, 255, 0.4); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(58, 134, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(58, 134, 255, 0); }
         }
         
         @keyframes orbit {
@@ -71,9 +70,15 @@
         }
         
         @keyframes buttonPulse {
-            0% { box-shadow: 0 0 0 0 rgba(114, 87, 255, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(114, 87, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(114, 87, 255, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(58, 134, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(58, 134, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(58, 134, 255, 0); }
+        }
+        
+        @keyframes buttonGlow {
+            0% { filter: drop-shadow(0 0 4px rgba(58, 134, 255, 0.5)); }
+            50% { filter: drop-shadow(0 0 8px rgba(58, 134, 255, 0.8)); }
+            100% { filter: drop-shadow(0 0 4px rgba(58, 134, 255, 0.5)); }
         }
         
         .eclipse-splash {
@@ -101,8 +106,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(114, 87, 255, 0.1), transparent 30%),
-                        radial-gradient(circle at 80% 70%, rgba(67, 217, 173, 0.05), transparent 30%);
+            background: radial-gradient(circle at 20% 30%, rgba(58, 134, 255, 0.15), transparent 30%),
+                        radial-gradient(circle at 80% 70%, rgba(114, 239, 221, 0.08), transparent 30%);
             z-index: 0;
         }
         
@@ -130,7 +135,7 @@
             font-size: 42px;
             font-weight: 700;
             margin-bottom: 12px;
-            background: linear-gradient(to right, #7257ff, #43d9ad);
+            background: linear-gradient(to right, #560bad, #3a86ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -155,7 +160,7 @@
             width: 100%;
             height: 100%;
             border: 2px solid transparent;
-            border-top-color: var(--eclipse-primary);
+            border-top-color: var(--eclipse-primary-light);
             border-radius: 50%;
             animation: orbit 1.5s linear infinite;
         }
@@ -167,7 +172,7 @@
         }
         
         .eclipse-splash-loader-ring:nth-child(3) {
-            border-top-color: rgba(114, 87, 255, 0.5);
+            border-top-color: rgba(58, 134, 255, 0.5);
             animation-duration: 3.5s;
             transform: rotate(120deg);
         }
@@ -184,7 +189,7 @@
         .eclipse-splash-status-dot {
             width: 8px;
             height: 8px;
-            background: var(--eclipse-primary);
+            background: var(--eclipse-primary-light);
             border-radius: 50%;
             animation: pulse 1.5s infinite;
         }
@@ -215,7 +220,7 @@
             transition: all 0.3s ease;
             opacity: 1;
             transform: translateY(0);
-            border-left: 3px solid var(--eclipse-primary);
+            border-left: 3px solid var(--eclipse-primary-light);
         }
         
         .eclipse-toast-success {
@@ -241,69 +246,95 @@
             flex: 1;
         }
         
-        /* NOVO BOTÃO DE MENU - Totalmente reformulado */
+        /* NOVO BOTÃO DE MENU - COM CORES TOTALMENTE REFEITAS */
         .eclipse-menu-btn {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, var(--eclipse-primary), var(--eclipse-primary-light));
-            border-radius: 20px;
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(145deg, var(--eclipse-primary), var(--eclipse-primary-light));
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 100000;
-            box-shadow: 0 6px 20px rgba(114, 87, 255, 0.3);
+            box-shadow: 0 6px 16px rgba(58, 134, 255, 0.35);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 99999;
             overflow: hidden;
+            transform: scale(1);
+            transform-origin: center;
         }
         
         .eclipse-menu-btn::before {
             content: '';
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            width: 180%;
+            height: 180%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.4s ease;
+            transform: scale(0);
+            border-radius: 50%;
         }
         
         .eclipse-menu-btn:hover::before {
             opacity: 1;
+            transform: scale(1);
         }
         
         .eclipse-menu-btn:hover {
             transform: scale(1.08) translateY(-3px);
-            box-shadow: 0 10px 25px rgba(114, 87, 255, 0.4);
+            box-shadow: 0 10px 24px rgba(58, 134, 255, 0.45);
         }
         
         .eclipse-menu-btn:active {
             transform: scale(1) translateY(0);
+            box-shadow: 0 4px 12px rgba(58, 134, 255, 0.3);
         }
         
         .eclipse-menu-btn-icon {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            width: 28px;
+            gap: 5px;
+            width: 26px;
+            transition: all 0.3s ease;
         }
         
         .eclipse-menu-btn-line {
             height: 3px;
             width: 100%;
             background: white;
-            border-radius: 3px;
-            transition: all 0.3s ease;
+            border-radius: 4px;
+            transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .eclipse-menu-btn-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--eclipse-accent);
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+            border-radius: 4px;
+        }
+        
+        .eclipse-menu-btn:hover .eclipse-menu-btn-line::after {
+            transform: translateX(0);
         }
         
         .eclipse-menu-btn.active .eclipse-menu-btn-line:nth-child(1) {
-            transform: translateY(6px) rotate(45deg);
+            transform: translateY(6.5px) rotate(45deg);
         }
         
         .eclipse-menu-btn.active .eclipse-menu-btn-line:nth-child(2) {
@@ -311,18 +342,21 @@
         }
         
         .eclipse-menu-btn.active .eclipse-menu-btn-line:nth-child(3) {
-            transform: translateY(-6px) rotate(-45deg);
+            transform: translateY(-6.5px) rotate(-45deg);
         }
         
         .eclipse-menu-btn-label {
             font-family: 'Inter', sans-serif;
             font-size: 11px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.92);
             margin-top: 4px;
             opacity: 0;
             transform: translateY(5px);
-            transition: all 0.3s ease;
+            transition: all 0.35s ease;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
         }
         
         .eclipse-menu-btn:hover .eclipse-menu-btn-label {
@@ -331,7 +365,7 @@
         }
         
         .eclipse-menu-btn.pulse {
-            animation: buttonPulse 2s infinite;
+            animation: buttonGlow 2.5s infinite;
         }
         
         .eclipse-panel {
@@ -434,7 +468,7 @@
             transform: translateX(-50%);
             width: 80%;
             height: 3px;
-            background: var(--eclipse-primary);
+            background: var(--eclipse-primary-light);
             border-radius: 3px;
         }
         
@@ -461,7 +495,7 @@
         }
         
         .eclipse-tab-content::-webkit-scrollbar-thumb {
-            background: var(--eclipse-primary);
+            background: var(--eclipse-primary-light);
             border-radius: 3px;
         }
         
@@ -492,7 +526,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(114, 87, 255, 0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(58, 134, 255, 0.15), transparent);
             transition: all 0.6s ease;
         }
         
@@ -501,9 +535,9 @@
         }
         
         .eclipse-button:hover {
-            border-color: var(--eclipse-primary);
+            border-color: var(--eclipse-primary-light);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(114, 87, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(58, 134, 255, 0.15);
         }
         
         .eclipse-button:active {
@@ -511,8 +545,8 @@
         }
         
         .eclipse-button.active {
-            background: rgba(114, 87, 255, 0.15);
-            border-color: var(--eclipse-primary);
+            background: rgba(58, 134, 255, 0.15);
+            border-color: var(--eclipse-primary-light);
             color: white;
         }
         
@@ -522,8 +556,8 @@
             right: 16px;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(114, 87, 255, 0.25);
-            color: var(--eclipse-primary-light);
+            background: rgba(58, 134, 255, 0.25);
+            color: var(--eclipse-accent);
             font-size: 12px;
             padding: 3px 10px;
             border-radius: 12px;
@@ -544,12 +578,12 @@
         }
         
         .eclipse-button:hover .eclipse-icon {
-            background: var(--eclipse-primary);
+            background: var(--eclipse-primary-light);
             transform: scale(1.05);
         }
         
         .eclipse-button.active .eclipse-icon {
-            background: var(--eclipse-primary);
+            background: var(--eclipse-primary-light);
         }
         
         .eclipse-input-group {
@@ -569,7 +603,7 @@
         
         .eclipse-speed-value {
             font-weight: 600;
-            color: var(--eclipse-primary);
+            color: var(--eclipse-primary-light);
         }
         
         /* Nova barra de velocidade - bonita, profissional e funcional */
@@ -603,7 +637,7 @@
             height: 24px;
             border-radius: 50%;
             background: white;
-            border: 2px solid var(--eclipse-primary);
+            border: 2px solid var(--eclipse-primary-light);
             cursor: pointer;
             transition: all 0.15s ease;
             margin-top: -9px;
@@ -614,9 +648,9 @@
         .eclipse-range::-webkit-slider-thumb:hover,
         .eclipse-range::-webkit-slider-thumb:active {
             transform: scale(1.25);
-            background: var(--eclipse-primary);
+            background: var(--eclipse-primary-light);
             border-color: white;
-            box-shadow: 0 0 0 8px rgba(114, 87, 255, 0.2);
+            box-shadow: 0 0 0 8px rgba(58, 134, 255, 0.2);
         }
         
         .eclipse-range-track {
@@ -625,7 +659,7 @@
             left: 0;
             height: 100%;
             border-radius: 3px;
-            background: linear-gradient(90deg, var(--eclipse-primary), var(--eclipse-accent));
+            background: linear-gradient(90deg, var(--eclipse-primary), var(--eclipse-primary-light));
         }
         
         .eclipse-range-marks {
@@ -646,7 +680,7 @@
         
         .eclipse-range-mark.active {
             height: 12px;
-            background: var(--eclipse-primary);
+            background: var(--eclipse-primary-light);
         }
         
         .eclipse-range-labels {
@@ -672,7 +706,7 @@
         }
         
         .eclipse-footer a {
-            color: var(--eclipse-primary);
+            color: var(--eclipse-primary-light);
             text-decoration: none;
             transition: color 0.2s;
             display: flex;
@@ -681,7 +715,7 @@
         }
         
         .eclipse-footer a:hover {
-            color: var(--eclipse-primary-light);
+            color: var(--eclipse-accent);
         }
         
         .eclipse-about-content {
@@ -719,13 +753,13 @@
         
         .eclipse-feature:hover {
             transform: translateY(-2px);
-            border-color: var(--eclipse-primary);
-            box-shadow: 0 4px 12px rgba(114, 87, 255, 0.1);
+            border-color: var(--eclipse-primary-light);
+            box-shadow: 0 4px 12px rgba(58, 134, 255, 0.1);
         }
         
         .eclipse-feature-title {
             font-weight: 600;
-            color: var(--eclipse-primary);
+            color: var(--eclipse-primary-light);
             margin-bottom: 4px;
             font-size: 14px;
         }
@@ -754,8 +788,8 @@
         }
         
         .eclipse-social-btn:hover {
-            border-color: var(--eclipse-primary);
-            background: rgba(114, 87, 255, 0.1);
+            border-color: var(--eclipse-primary-light);
+            background: rgba(58, 134, 255, 0.1);
         }
         
         .eclipse-social-icon {
@@ -772,12 +806,13 @@
         }
         
         .eclipse-credits a {
-            color: var(--eclipse-primary);
+            color: var(--eclipse-primary-light);
             text-decoration: none;
         }
         
         .eclipse-credits a:hover {
             text-decoration: underline;
+            color: var(--eclipse-accent);
         }
         
         /* Mobile specific styles */
@@ -793,8 +828,8 @@
             .eclipse-menu-btn {
                 bottom: 24px;
                 right: 24px;
-                width: 60px;
-                height: 60px;
+                width: 64px;
+                height: 64px;
             }
             
             .eclipse-toast {
@@ -967,7 +1002,7 @@
         // Espera a animação de fadeout terminar
         await delay(500);
 
-        // CRIA O NOVO BOTÃO DE MENU - Totalmente reformulado
+        // CRIA O NOVO BOTÃO DE MENU - COM CORES TOTALMENTE NOVAS
         const menuBtn = document.createElement("div");
         menuBtn.className = "eclipse-menu-btn";
         menuBtn.innerHTML = `
