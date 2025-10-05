@@ -1,14 +1,14 @@
 (function() {
     if (document.getElementById("eclipse-panel")) return;
-
+    
     const features = {
         autoAnswer: false,
         revealAnswers: false,
         questionSpoof: false,
         videoSpoof: false,
         darkMode: true,
-        rgbLogo: false,
-        oneko: false
+        rgbLogo: false
+        // Removi a feature 'oneko' pois não será mais necessária
     };
 
     const config = {
@@ -68,6 +68,12 @@
         @keyframes shine {
             0% { left: -100%; }
             100% { left: 100%; }
+        }
+        
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 0 0 0 rgba(114, 87, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(114, 87, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(114, 87, 255, 0); }
         }
         
         .eclipse-splash {
@@ -235,36 +241,97 @@
             flex: 1;
         }
         
-        .eclipse-toggle {
+        /* NOVO BOTÃO DE MENU - Totalmente reformulado */
+        .eclipse-menu-btn {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            width: 56px;
-            height: 56px;
+            width: 64px;
+            height: 64px;
             background: linear-gradient(135deg, var(--eclipse-primary), var(--eclipse-primary-light));
-            border-radius: 16px;
+            border-radius: 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 100000;
-            color: white;
-            font-size: 24px;
-            box-shadow: 0 4px 16px rgba(114, 87, 255, 0.3);
-            font-family: 'Inter', sans-serif;
+            box-shadow: 0 6px 20px rgba(114, 87, 255, 0.3);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             z-index: 99999;
+            overflow: hidden;
         }
         
-        .eclipse-toggle:hover {
-            transform: scale(1.08) rotate(5deg);
-            box-shadow: 0 6px 20px rgba(114, 87, 255, 0.4);
+        .eclipse-menu-btn::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
-        .eclipse-toggle:active {
-            transform: scale(1) rotate(0);
+        .eclipse-menu-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .eclipse-menu-btn:hover {
+            transform: scale(1.08) translateY(-3px);
+            box-shadow: 0 10px 25px rgba(114, 87, 255, 0.4);
+        }
+        
+        .eclipse-menu-btn:active {
+            transform: scale(1) translateY(0);
+        }
+        
+        .eclipse-menu-btn-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 28px;
+        }
+        
+        .eclipse-menu-btn-line {
+            height: 3px;
+            width: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .eclipse-menu-btn.active .eclipse-menu-btn-line:nth-child(1) {
+            transform: translateY(6px) rotate(45deg);
+        }
+        
+        .eclipse-menu-btn.active .eclipse-menu-btn-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .eclipse-menu-btn.active .eclipse-menu-btn-line:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg);
+        }
+        
+        .eclipse-menu-btn-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 4px;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .eclipse-menu-btn:hover .eclipse-menu-btn-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .eclipse-menu-btn.pulse {
+            animation: buttonPulse 2s infinite;
         }
         
         .eclipse-panel {
@@ -723,9 +790,11 @@
                 max-height: 70vh;
             }
             
-            .eclipse-toggle {
+            .eclipse-menu-btn {
                 bottom: 24px;
                 right: 24px;
+                width: 60px;
+                height: 60px;
             }
             
             .eclipse-toast {
@@ -870,139 +939,6 @@
         `;
         document.body.appendChild(splash);
 
-        // Função Oneko (gatinho)
-        function oneko() {
-            const nekoEl = document.createElement("div");
-            let nekoPosX = 32;
-            let nekoPosY = 32;
-            let mousePosX = 0;
-            let mousePosY = 0;
-            let frameCount = 0;
-            let idleTime = 0;
-            let idleAnimation = null;
-            let idleAnimationFrame = 0;
-            const nekoSpeed = 10;
-            const spriteSets = {
-                idle: [[-3, -3]],
-                alert: [[-7, -3]],
-                scratchSelf: [[-5, 0], [-6, 0], [-7, 0]],
-                scratchWall: [[0, 0], [0, -1]],
-                sleep: [[-2, 0], [-2, -1]],
-                sit: [[-2, -3]],
-                N: [[-1, -2], [-1, -3]],
-                NE: [[0, -2], [0, -3]],
-                E: [[-3, 0], [-4, 0]],
-                SE: [[-5, -1], [-6, -1]],
-                S: [[-6, -2], [-7, -2]],
-                SW: [[-5, -2], [-6, -3]],
-                W: [[-4, -2], [-4, -3]],
-                NW: [[-1, 0], [-1, -1]],
-            };
-            
-            function init() {
-                nekoEl.id = "oneko";
-                nekoEl.style.width = "32px";
-                nekoEl.style.height = "32px";
-                nekoEl.style.position = "fixed";
-                nekoEl.style.pointerEvents = "none";
-                nekoEl.style.backgroundImage = "url('https://raw.githubusercontent.com/orickmaxx/KhanCrack/main/oneko.gif')";
-                nekoEl.style.imageRendering = "pixelated";
-                nekoEl.style.left = "16px";
-                nekoEl.style.top = "16px";
-                nekoEl.style.zIndex = "99999";
-                document.body.appendChild(nekoEl);
-                
-                document.addEventListener("mousemove", (event) => {
-                    mousePosX = event.clientX;
-                    mousePosY = event.clientY;
-                });
-                
-                window.onekoInterval = setInterval(frame, 100);
-            }
-            
-            function setSprite(name, frame) {
-                const sprite = spriteSets[name][frame % spriteSets[name].length];
-                nekoEl.style.backgroundPosition = `${sprite[0] * 32}px ${sprite[1] * 32}px`;
-            }
-            
-            function resetIdleAnimation() {
-                idleAnimation = null;
-                idleAnimationFrame = 0;
-            }
-            
-            function idle() {
-                idleTime += 1;
-                if (idleTime > 10 && Math.random() < 0.02 && idleAnimation == null) {
-                    let availableAnimations = ["alert", "scratchSelf"];
-                    if (nekoPosX < 32) {
-                        availableAnimations.push("scratchWall");
-                    }
-                    idleAnimation = availableAnimations[Math.floor(Math.random() * availableAnimations.length)];
-                }
-                
-                switch (idleAnimation) {
-                    case "alert":
-                        setSprite("alert", 0);
-                        if (idleAnimationFrame > 10) {
-                            resetIdleAnimation();
-                        }
-                        break;
-                    case "scratchSelf":
-                        setSprite("scratchSelf", idleAnimationFrame);
-                        if (idleAnimationFrame > 9) {
-                            resetIdleAnimation();
-                        }
-                        break;
-                    case "scratchWall":
-                        setSprite("scratchWall", idleAnimationFrame);
-                        if (idleAnimationFrame > 9) {
-                            resetIdleAnimation();
-                        }
-                        break;
-                    default:
-                        setSprite("sit", 0);
-                        return;
-                }
-                idleAnimationFrame += 1;
-            }
-            
-            function frame() {
-                frameCount += 1;
-                const diffX = nekoPosX - mousePosX;
-                const diffY = nekoPosY - mousePosY;
-                const distance = Math.sqrt(diffX ** 2 + diffY ** 2);
-                
-                if (distance < nekoSpeed || distance < 48) {
-                    idle();
-                    return;
-                }
-                
-                idleTime = 0;
-                resetIdleAnimation();
-                
-                let direction;
-                const angle = (Math.atan2(diffY, diffX) + Math.PI) * (180 / Math.PI) + 90;
-                if (angle < 0) angle += 360;
-                
-                if (angle > 337.5 || angle <= 22.5) direction = "N";
-                else if (angle > 22.5 && angle <= 67.5) direction = "NE";
-                else if (angle > 67.5 && angle <= 112.5) direction = "E";
-                else if (angle > 112.5 && angle <= 157.5) direction = "SE";
-                else if (angle > 157.5 && angle <= 202.5) direction = "S";
-                else if (angle > 202.5 && angle <= 247.5) direction = "SW";
-                else if (angle > 247.5 && angle <= 292.5) direction = "W";
-                else if (angle > 292.5 && angle <= 337.5) direction = "NW";
-                
-                setSprite(direction, frameCount);
-                nekoPosX -= (diffX / distance) * nekoSpeed;
-                nekoPosY -= (diffY / distance) * nekoSpeed;
-                nekoEl.style.left = `${nekoPosX - 16}px`;
-                nekoEl.style.top = `${nekoPosY - 16}px`;
-            }
-            
-            init();
-        };
-
         // Carrega o Dark Reader
         function loadScript(src, id) {
             return new Promise((resolve, reject) => {
@@ -1031,22 +967,41 @@
         // Espera a animação de fadeout terminar
         await delay(500);
 
-        // Cria o botão toggle
-        const toggleBtn = document.createElement("div");
-        toggleBtn.innerHTML = "🌙";
-        toggleBtn.className = "eclipse-toggle";
-        toggleBtn.onclick = () => {
+        // CRIA O NOVO BOTÃO DE MENU - Totalmente reformulado
+        const menuBtn = document.createElement("div");
+        menuBtn.className = "eclipse-menu-btn";
+        menuBtn.innerHTML = `
+            <div class="eclipse-menu-btn-icon">
+                <div class="eclipse-menu-btn-line"></div>
+                <div class="eclipse-menu-btn-line"></div>
+                <div class="eclipse-menu-btn-line"></div>
+            </div>
+            <div class="eclipse-menu-btn-label">MENU</div>
+        `;
+        
+        // Adiciona animação pulsante inicial
+        setTimeout(() => {
+            menuBtn.classList.add('pulse');
+            setTimeout(() => menuBtn.classList.remove('pulse'), 4000);
+        }, 1000);
+        
+        menuBtn.onclick = () => {
             const p = document.getElementById("eclipse-panel");
             if (p) {
                 if (p.style.display === "block") {
                     p.style.display = "none";
+                    menuBtn.classList.remove('active');
                 } else {
                     p.style.display = "block";
-                    setTimeout(() => p.classList.add("active"), 10);
+                    setTimeout(() => {
+                        p.classList.add("active");
+                        menuBtn.classList.add('active');
+                    }, 10);
                 }
             }
         };
-        document.body.appendChild(toggleBtn);
+        
+        document.body.appendChild(menuBtn);
         
         // Cria o painel principal
         const panel = document.createElement("div");
@@ -1114,10 +1069,6 @@
                 <button id="eclipse-btn-rgb" class="eclipse-button">
                     <span class="eclipse-icon">🎨</span>
                     <span>Logo RGB Dinâmico</span>
-                </button>
-                <button id="eclipse-btn-oneko" class="eclipse-button">
-                    <span class="eclipse-icon">🐱</span>
-                    <span>Oneko Gatinho</span>
                 </button>
             </div>
             <div id="eclipse-tab-about" class="eclipse-tab-content">
@@ -1197,7 +1148,6 @@
             isActive ? DarkReader.enable() : DarkReader.disable();
         });
         setupToggleButton('eclipse-btn-rgb', 'rgbLogo', toggleRgbLogo);
-        setupToggleButton('eclipse-btn-oneko', 'oneko', toggleOnekoJs);
 
         // Configura o controle de velocidade
         const speedInput = document.getElementById('eclipse-speed');
@@ -1254,22 +1204,6 @@
                 return;
             }
             khanLogo.style.animation = isActive ? 'hueShift 5s infinite linear' : '';
-        }
-
-        function toggleOnekoJs(isActive) {
-            if (isActive) {
-                if (!document.getElementById("oneko")) {
-                    oneko();
-                    showToast("Gatinho cósmico ativado com sucesso", "success");
-                }
-            } else {
-                const onekoEl = document.getElementById("oneko");
-                if (onekoEl) {
-                    clearInterval(window.onekoInterval);
-                    onekoEl.remove();
-                    showToast("Gatinho cósmico desativado", "info");
-                }
-            }
         }
         
         // Configura o arrastar do painel
