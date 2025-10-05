@@ -825,8 +825,8 @@
                             type: "radio", 
                             options: { 
                                 choices: [
-                                    { content: "✅ Confirmar", correct: true }, 
-                                    { content: "❌ Cancelar", correct: false }
+                                    { content: "✅ Correto", correct: true }, 
+                                    { content: "❌ Errado (nao clique aqui animal)", correct: false }
                                 ] 
                             } 
                         } 
