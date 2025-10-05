@@ -8,11 +8,13 @@
         videoSpoof: false,
         darkMode: true,
         rgbLogo: false,
-        music: false
+        music: false,
+        musicVolume: 50
     };
 
     const config = {
-        autoAnswerDelay: 1.5
+        autoAnswerDelay: 1.5,
+        youtubeVideoId: "y_HY1jZlUP0" // ID padrão do YouTube
     };
 
     let youtubePlayer;
@@ -71,6 +73,11 @@
         @keyframes shine {
             0% { left: -100%; }
             100% { left: 100%; }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .eclipse-splash {
@@ -786,6 +793,10 @@
             transform: scale(1.1);
         }
         
+        .eclipse-music-player.playing .eclipse-music-icon {
+            animation: rotate 1.5s linear infinite;
+        }
+        
         .youtube-player {
             position: fixed;
             top: -9999px;
@@ -793,6 +804,114 @@
             width: 1px;
             height: 1px;
             visibility: hidden;
+        }
+        
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .music-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--eclipse-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid var(--eclipse-border);
+            transition: all 0.2s ease;
+        }
+        
+        .music-btn:hover {
+            background: var(--eclipse-primary);
+            border-color: var(--eclipse-primary);
+        }
+        
+        .music-btn.active {
+            background: var(--eclipse-primary);
+            border-color: var(--eclipse-primary);
+        }
+        
+        .music-volume-container {
+            flex: 1;
+            position: relative;
+            height: 24px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .music-volume-icon {
+            width: 20px;
+            margin-right: 8px;
+            color: var(--eclipse-text-muted);
+        }
+        
+        .music-volume-range {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--eclipse-surface);
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .music-volume-range:focus {
+            outline: none;
+        }
+        
+        .music-volume-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--eclipse-primary);
+            cursor: pointer;
+            margin-top: -5px;
+        }
+        
+        .music-volume-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 3px;
+            background: var(--eclipse-primary);
+        }
+        
+        .music-url-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--eclipse-surface);
+            color: var(--eclipse-text);
+            border: 1px solid var(--eclipse-border);
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .music-url-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--eclipse-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .music-url-btn:hover {
+            background: var(--eclipse-primary-light);
+            transform: translateY(-2px);
         }
     `;
     document.head.appendChild(style);
@@ -903,6 +1022,29 @@
         }
     })();
 
+    // Função para extrair ID do YouTube de diferentes formatos de URL
+    function extractYouTubeId(url) {
+        // Verifica se é um ID puro (11 caracteres)
+        if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+            return url;
+        }
+        
+        // Padrões de URL do YouTube
+        const patterns = [
+            /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+            /(?:youtube\.com\/live\/)([a-zA-Z0-9_-]+)/
+        ];
+        
+        for (const pattern of patterns) {
+            const match = url.match(pattern);
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+        
+        return null;
+    }
+
     // Função para carregar a API do YouTube
     function loadYouTubeAPI() {
         return new Promise((resolve) => {
@@ -923,8 +1065,14 @@
     }
 
     // Função para criar o player do YouTube
-    function createYouTubePlayer() {
-        // Cria um iframe escondido para o player do YouTube
+    function createYouTubePlayer(videoId = config.youtubeVideoId) {
+        // Remove o player existente se houver
+        const existingPlayer = document.getElementById('youtube-player');
+        if (existingPlayer) {
+            existingPlayer.remove();
+        }
+        
+        // Cria um novo container para o player
         const playerDiv = document.createElement('div');
         playerDiv.id = 'youtube-player';
         playerDiv.className = 'youtube-player';
@@ -933,23 +1081,28 @@
         youtubePlayer = new YT.Player('youtube-player', {
             height: '0',
             width: '0',
-            videoId: 'y_HY1jZlUP0',
+            videoId: videoId,
             playerVars: {
                 'playsinline': 1,
                 'autoplay': 0,
                 'loop': 1,
-                'playlist': 'y_HY1jZlUP0'
+                'playlist': videoId,
+                'controls': 0,
+                'modestbranding': 1,
+                'rel': 0,
+                'showinfo': 0
             },
             events: {
                 'onReady': onPlayerReady,
-                'onStateChange': onPlayerStateChange
+                'onStateChange': onPlayerStateChange,
+                'onError': onPlayerError
             }
         });
     }
 
     function onPlayerReady(event) {
         playerReady = true;
-        // Não reproduz automaticamente - espera o usuário ativar
+        youtubePlayer.setVolume(features.musicVolume);
         showToast("Música carregada. Clique no ícone de música para reproduzir", "info", 3000);
     }
 
@@ -957,12 +1110,21 @@
         // Lida com mudanças de estado do player
         if (event.data === YT.PlayerState.PLAYING) {
             features.music = true;
-            document.getElementById('music-btn').classList.add('active');
+            document.getElementById('music-btn').classList.add('active', 'playing');
+            document.getElementById('music-btn-play').classList.remove('active');
+            document.getElementById('music-btn-pause').classList.add('active');
             showToast("Música reproduzindo", "success", 2000);
         } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
             features.music = false;
-            document.getElementById('music-btn').classList.remove('active');
+            document.getElementById('music-btn').classList.remove('active', 'playing');
+            document.getElementById('music-btn-pause').classList.remove('active');
+            document.getElementById('music-btn-play').classList.add('active');
         }
+    }
+
+    function onPlayerError(event) {
+        showToast("Erro ao reproduzir música. Verifique o ID do vídeo.", "error", 3000);
+        console.error("Erro do YouTube Player:", event);
     }
 
     // Função para reproduzir/pausar a música
@@ -976,6 +1138,47 @@
             youtubePlayer.pauseVideo();
         } else {
             youtubePlayer.playVideo();
+        }
+    }
+
+    // Função para atualizar o volume
+    function setVolume(volume) {
+        features.musicVolume = volume;
+        if (youtubePlayer && playerReady) {
+            youtubePlayer.setVolume(volume);
+        }
+        // Atualiza a barra de volume visual
+        const volumeTrack = document.querySelector('.music-volume-track');
+        if (volumeTrack) {
+            volumeTrack.style.width = `${volume}%`;
+        }
+    }
+
+    // Função para carregar nova música
+    function loadNewMusic() {
+        const input = document.getElementById('music-url-input');
+        if (!input) return;
+        
+        const url = input.value.trim();
+        if (!url) {
+            showToast("Por favor, insira um link ou ID do YouTube", "error", 2000);
+            return;
+        }
+        
+        const videoId = extractYouTubeId(url);
+        if (!videoId) {
+            showToast("URL ou ID inválido do YouTube", "error", 2000);
+            return;
+        }
+        
+        config.youtubeVideoId = videoId;
+        showToast(`Carregando nova música: ${videoId}`, "info", 2000);
+        
+        // Se já tiver um player, atualiza o vídeo
+        if (playerReady && youtubePlayer) {
+            youtubePlayer.loadVideoById(videoId);
+        } else {
+            createYouTubePlayer(videoId);
         }
     }
 
@@ -1130,10 +1333,27 @@
                     <span class="eclipse-icon">🎨</span>
                     <span>Logo RGB Dinâmico</span>
                 </button>
-                <button id="eclipse-btn-music" class="eclipse-button">
-                    <span class="eclipse-icon">🎵</span>
-                    <span>Música de Fundo</span>
-                </button>
+                <div class="eclipse-input-group" style="margin-top: 0">
+                    <div class="eclipse-input-label">
+                        <span>Configurações de Música</span>
+                    </div>
+                    <input type="text" id="music-url-input" class="music-url-input" placeholder="Link ou ID do YouTube (ex: y_HY1jZlUP0)">
+                    <button id="music-url-btn" class="music-url-btn">Carregar Música</button>
+                    
+                    <div class="music-controls" style="margin-top: 16px">
+                        <div class="music-btn" id="music-btn-play">
+                            <span>▶️</span>
+                        </div>
+                        <div class="music-btn active" id="music-btn-pause">
+                            <span>⏸️</span>
+                        </div>
+                        <div class="music-volume-container">
+                            <span class="music-volume-icon">🔊</span>
+                            <input type="range" class="music-volume-range" id="music-volume" value="${features.musicVolume}" min="0" max="100" step="1">
+                            <div class="music-volume-track" style="width: ${features.musicVolume}%"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="eclipse-tab-about" class="eclipse-tab-content">
                 <div class="eclipse-about-content">
@@ -1214,8 +1434,23 @@
         setupToggleButton('eclipse-btn-rgb', 'rgbLogo', toggleRgbLogo);
         
         // Configura o botão de música
-        setupToggleButton('eclipse-btn-music', 'music', (isActive) => {
-            toggleMusic();
+        document.getElementById('music-url-btn').addEventListener('click', loadNewMusic);
+        
+        // Configura o botão de play/pause no painel
+        document.getElementById('music-btn-play').addEventListener('click', () => {
+            if (features.music) {
+                youtubePlayer.pauseVideo();
+            } else {
+                youtubePlayer.playVideo();
+            }
+        });
+        
+        document.getElementById('music-btn-pause').addEventListener('click', () => {
+            if (features.music) {
+                youtubePlayer.pauseVideo();
+            } else {
+                youtubePlayer.playVideo();
+            }
         });
 
         // Configura o controle de velocidade
@@ -1275,13 +1510,32 @@
             khanLogo.style.animation = isActive ? 'hueShift 5s infinite linear' : '';
         }
         
+        // Configura o controle de volume
+        const volumeInput = document.getElementById('music-volume');
+        const volumeTrack = document.querySelector('.music-volume-track');
+        
+        if (volumeInput && volumeTrack) {
+            // Atualiza o volume visualmente
+            const updateVolumeUI = () => {
+                const volume = parseInt(volumeInput.value);
+                volumeTrack.style.width = `${volume}%`;
+                setVolume(volume);
+            };
+            
+            // Atualiza imediatamente
+            updateVolumeUI();
+            
+            // Atualiza durante o movimento do slider (input)
+            volumeInput.addEventListener('input', updateVolumeUI);
+        }
+        
         // Configura o arrastar do painel
         let isDragging = false;
         let panelOffset = { x: 0, y: 0 };
         
         function startDragging(e) {
             // Ignora se clicou em um botão ou input
-            if (e.target.closest('button, input, a, .eclipse-tab, .eclipse-range')) return;
+            if (e.target.closest('button, input, a, .eclipse-tab, .eclipse-range, .music-btn')) return;
             
             isDragging = true;
             const rect = panel.getBoundingClientRect();
